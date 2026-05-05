@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>forma.ai — Design Reference v3.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/*
+  ═══════════════════════════════════════════════════════════
+  FORMA.AI — DESIGN REFERENCE v3.0
+  FEDELE PIXEL-PER-PIXEL alle screenshot del Behance originale
+  Reference: Habit & Fitness Tracker App — ITO Digital Agency
+
+  COLORI ORIGINALI BEHANCE:
+  BG:         #121400  (oliva scurissimo)
+  BG card:    #1a1c0f  (oliva card)
+  BG input:   #2a2d1a  (oliva input)
+  Accent:     #EAFF55  (lime giallo brillante)
+  → FORMA sostituisce SOLO l'accent: #EAFF55 → #7A9E7E
+
+  FONT: Poppins (confermato da screenshot Typography sezione)
+  SIZE titolo splash: ~28-32px bold
+  SIZE card title: ~18-20px semibold
+  SIZE body: ~13-14px regular
+  SIZE label: ~11-12px medium
+  ═══════════════════════════════════════════════════════════
+*/
+
+:root {
+  /* Background — oliva profondo come originale */
+  --bg:       #121400;
+  --bg2:      #1a1c0f;
+  --bg3:      #1f2112;
+  --bg4:      #2a2d1a;
+
+  /* Accent: lime originale → sage FORMA */
+  --acc:      #7A9E7E;
+  --acc-l:    #9EC4A2;
+  --acc-d:    #4A6B4E;
+  --acc-bg:   rgba(122,158,126,0.18);
+
+  /* Testo */
+  --w:        #ffffff;
+  --w80:      rgba(255,255,255,0.80);
+  --w60:      rgba(255,255,255,0.60);
+  --w40:      rgba(255,255,255,0.40);
+  --w20:      rgba(255,255,255,0.20);
+  --w10:      rgba(255,255,255,0.10);
+  --w06:      rgba(255,255,255,0.06);
+
+  --font: 'Poppins', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+body{background:#0d0f00;font-family:var(--font);color:var(--w);padding:48px 32px;line-height:1}
+
+/* ── PAGE HEADER ── */
+.hdr{text-align:center;margin-bottom:64px;border-bottom:1px solid var(--w10);padding-bottom:40px}
+.hdr-logo{font-size:52px;font-weight:900;letter-spacing:-2px;margin-bottom:8px}
+.hdr-logo s{color:var(--acc);text-decoration:none}
+.hdr-sub{font-size:12px;color:var(--w40);font-family:var(--mono);letter-spacing:2px;text-transform:uppercase}
+.hdr-note{margin-top:12px;font-size:11px;color:rgba(122,158,126,0.5);font-family:var(--mono);line-height:1.6}
+
+/* ── SECTION ── */
+.s{max-width:1400px;margin:0 auto 88px}
+.s-tag{font-size:11px;font-family:var(--mono);color:var(--acc-l);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;display:flex;align-items:center;gap:8px}
+.s-tag::before{content:'••';opacity:.6}
+
+/* ── PHONES ROW ── */
+.row{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.pw{display:flex;flex-direction:column;align-items:center;gap:14px}
+.plbl{font-size:10px;color:var(--w40);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;text-align:center}
+
+/* ── PHONE FRAME ──
+   Behance originale: iPhone 14 Pro, frame nero profondo,
+   Dynamic Island, angoli arrotondati ~44px
+*/
+.phone{
+  width:260px;
+  background:#000;
+  border-radius:44px;
+  border:1.5px solid rgba(255,255,255,0.12);
+  overflow:hidden;
+  box-shadow:
+    0 0 0 6px #080a00,
+    0 0 0 7px rgba(255,255,255,0.06),
+    0 40px 80px rgba(0,0,0,0.9),
+    inset 0 0 0 1px rgba(255,255,255,0.03);
+  position:relative;
+}
+.phone-inner{
+  background:var(--bg);
+  border-radius:38px;
+  overflow:hidden;
+  height:580px;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+
+/* Dynamic Island — esatto come Behance */
+.di{
+  position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  width:90px;height:26px;
+  background:#000;border-radius:50px;
+  z-index:30;
+}
+
+/* Status bar */
+.sb{
+  padding:16px 20px 4px;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-shrink:0;
+  font-family:var(--mono);font-size:11px;font-weight:500;
+}
+.sb-r{display:flex;gap:5px;align-items:center}
+.bat{width:19px;height:9px;border:1.5px solid rgba(255,255,255,0.7);border-radius:2.5px;position:relative}
+.bat::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:2px;height:5px;background:rgba(255,255,255,0.5);border-radius:0 1px 1px 0}
+.bat-f{position:absolute;left:1.5px;top:1.5px;bottom:1.5px;width:70%;background:#fff;border-radius:1px}
+
+/* Screen body */
+.body{flex:1;overflow:hidden;display:flex;flex-direction:column}
+
+/* ── BOTTOM NAV (dal Behance)
+   4 icone, nessun testo su alcune versioni, pill accent sotto attiva
+   Sfondo leggermente più scuro del BG
+*/
+.bnav{
+  background:var(--bg2);
+  border-top:1px solid var(--w06);
+  padding:10px 20px 16px;
+  display:flex;justify-content:space-around;
+  flex-shrink:0;
+}
+.bi{display:flex;flex-direction:column;align-items:center;gap:4px}
+.bi-pill{width:28px;height:3px;background:var(--acc);border-radius:50px;margin-bottom:0}
+.bi-ico{width:22px;height:22px;stroke:var(--w40);fill:none;stroke-width:1.8}
+.bi-ico.a{stroke:var(--acc)}
+.bi-lbl{font-size:9px;font-weight:500;color:var(--w40)}
+.bi-lbl.a{color:var(--acc)}
+
+/* ════════════════════════════════════════════════════════
+   SPLASH SCREEN
+   Dal Behance: atleta donna in verde, sfondo oliva scuro,
+   strisce diagonali sovrapposte, testo GRANDE bianco/lime,
+   CTA pill con checkmark sx e frecce dx
+   ════════════════════════════════════════════════════════ */
+.spl{
+  flex:1;position:relative;
+  background:linear-gradient(150deg,#1e2a00 0%,#141a00 40%,#0d1000 100%);
+  overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;
+}
+.spl-stripes{
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(-45deg,transparent,transparent 24px,rgba(122,158,126,0.06) 24px,rgba(122,158,126,0.06) 25px);
+}
+.spl-glo{
+  position:absolute;top:-60px;left:50%;transform:translateX(-50%);
+  width:220px;height:340px;
+  background:radial-gradient(ellipse,rgba(122,158,126,0.2) 0%,transparent 65%);
+}
+.spl-fig{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:170px;height:320px;
+  background:linear-gradient(180deg,rgba(122,158,126,0.3) 0%,rgba(74,107,78,0.18) 60%,transparent 100%);
+  border-radius:85px 85px 0 0;
+}
+.spl-ov{
+  position:absolute;bottom:0;left:0;right:0;height:50%;
+  background:linear-gradient(180deg,transparent 0%,rgba(13,16,0,0.95) 60%,#0d1000 100%);
+}
+.spl-con{position:relative;z-index:2;padding:0 24px 24px}
+/* Dal Behance: "Your Path to" ~22px, "Success" in lime/sage grande, "Starts with Daily Tracking" */
+.spl-t1{font-size:22px;font-weight:600;color:var(--w80);margin-bottom:2px}
+.spl-t2{font-size:30px;font-weight:800;color:var(--acc);line-height:1.1;letter-spacing:-0.5px}
+.spl-t3{font-size:22px;font-weight:600;color:var(--w80);margin-bottom:28px}
+/* CTA dal Behance: pill intera, checkmark a sx in cerchio scuro, "Get Started", frecce >> a dx */
+.spl-cta{
+  width:100%;height:52px;
+  background:var(--acc);border-radius:50px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 6px 0 8px;
+}
+.spl-l{display:flex;align-items:center;gap:10px}
+.spl-chk{
+  width:38px;height:38px;
+  background:rgba(0,0,0,0.22);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.spl-chk svg{width:16px;height:16px;stroke:#0d1000;fill:none;stroke-width:2.5}
+.spl-txt{font-size:15px;font-weight:700;color:#0d1000}
+.spl-arr{
+  display:flex;gap:0;
+  background:rgba(0,0,0,0.18);border-radius:50px;
+  padding:8px 14px;font-size:15px;color:rgba(13,16,0,0.55);
+  letter-spacing:-2px;
+}
+
+/* ════════════════════════════════════════════════════════
+   HOME — Today's Habit
+   Dal Behance screenshot 1 e 7:
+   - Avatar + "Alex Cole" + "Today's Habit" + "+" button
+   - Calendario orizzontale: Sun Mon[active lime] Tue Wed Thu
+   - Tab pill: Morning | Afternoon | Evening
+   - "Start New Habits" + "See All"
+   - Card verde grande "Eat & drink healthily" con foto atleta
+   ════════════════════════════════════════════════════════ */
+.hh{padding:10px 20px 12px;flex-shrink:0;display:flex;justify-content:space-between;align-items:center}
+.hh-l{display:flex;align-items:center;gap:10px}
+.hav{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--acc) 0%,var(--acc-d) 100%);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.hname{font-size:11px;font-weight:400;color:var(--w60);margin-bottom:1px}
+.htit{font-size:16px;font-weight:700;letter-spacing:-0.3px}
+.hplus{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--w20);display:flex;align-items:center;justify-content:center}
+.hplus svg{width:12px;height:12px;stroke:var(--w60);fill:none;stroke-width:2}
+
+/* Calendar */
+.cal{padding:0 20px 12px;flex-shrink:0}
+.cal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.cal-mo{font-size:14px;font-weight:600}
+.cal-navs{display:flex;gap:6px}
+.cn{width:22px;height:22px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center}
+.cn svg{width:9px;height:9px;stroke:var(--w60);fill:none;stroke-width:2}
+.cal-days{display:flex;gap:3px}
+.cd{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;border-radius:12px}
+.cd.a{background:var(--acc)}
+.cdn{font-size:9px;font-weight:500;color:var(--w40);text-transform:uppercase}
+.cd.a .cdn{color:rgba(13,16,0,0.5)}
+.cdd{font-size:15px;font-weight:700;color:var(--w60)}
+.cd.a .cdd{color:#0d1000}
+
+/* Period tabs */
+.ptabs{display:flex;gap:6px;padding:0 20px 12px;flex-shrink:0}
+.pt{padding:6px 12px;border-radius:50px;font-size:11px;font-weight:500;color:var(--w40);border:1px solid var(--w10)}
+.pt.a{color:var(--w);border-color:var(--w60);background:var(--bg4)}
+
+/* Section header */
+.sh{display:flex;justify-content:space-between;align-items:center;padding:0 20px 10px;flex-shrink:0}
+.sh-t{font-size:14px;font-weight:600}
+.sh-l{font-size:11px;color:var(--w40)}
+
+/* Big green habit card — dal Behance: card prominente oliva scuro con foto atleta a destra */
+.hbig{
+  margin:0 20px 10px;
+  background:linear-gradient(135deg,#2d4020 0%,#1e2d15 100%);
+  border-radius:18px;padding:16px;
+  border:1px solid rgba(122,158,126,0.18);
+  display:flex;align-items:center;gap:10px;
+  flex-shrink:0;position:relative;overflow:hidden;min-height:100px;
+}
+.hbig-figbg{position:absolute;right:0;top:0;bottom:0;width:110px;background:linear-gradient(270deg,rgba(122,158,126,0.25) 0%,transparent 100%)}
+.hbig-fig{position:absolute;right:10px;bottom:0;width:80px;height:90px;background:linear-gradient(180deg,rgba(122,158,126,0.3) 0%,rgba(74,107,78,0.18) 100%);border-radius:40px 40px 0 0;opacity:.75}
+.hbig-info{position:relative;z-index:1;flex:1}
+.hbig-t{font-size:18px;font-weight:700;line-height:1.2;margin-bottom:6px;color:#fff}
+.hbig-s{font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5}
+/* Arrow button lime circle */
+.hbig-arr{position:relative;z-index:1;width:32px;height:32px;background:var(--acc);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hbig-arr svg{width:14px;height:14px;stroke:#0d1000;fill:none;stroke-width:2.5}
+
+/* ════════════════════════════════════════════════════════
+   LOGIN / SIGNUP
+   ════════════════════════════════════════════════════════ */
+.lhd{padding:20px 20px 0;font-size:20px;font-weight:700;line-height:1.3;flex-shrink:0}
+.ltabs{display:flex;gap:2px;margin:14px 20px 0;background:var(--bg4);border-radius:50px;padding:3px;flex-shrink:0}
+.ltab{flex:1;padding:8px;border-radius:50px;font-size:12px;font-weight:600;text-align:center;color:var(--w40)}
+.ltab.a{background:var(--acc);color:#0d1000}
+.lform{padding:14px 20px 0;flex-shrink:0;display:flex;flex-direction:column;gap:9px}
+.linp{width:100%;height:42px;background:var(--bg4);border:1px solid var(--w10);border-radius:10px;padding:0 14px;font-size:12px;color:var(--w60);font-family:var(--font);display:flex;align-items:center;gap:8px}
+.linp svg{width:14px;height:14px;stroke:var(--w20);fill:none;stroke-width:1.8;flex-shrink:0}
+.lrow{display:flex;justify-content:space-between;align-items:center}
+.lrem{font-size:10px;color:var(--w40);display:flex;align-items:center;gap:5px}
+.chk{width:13px;height:13px;border:1px solid var(--w20);border-radius:3px}
+.lfgt{font-size:10px;color:var(--acc-l)}
+.cta-f{margin:14px 20px 0;height:46px;background:var(--acc);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#0d1000;flex-shrink:0}
+.lor{text-align:center;font-size:10px;color:var(--w20);margin:10px 20px 0;flex-shrink:0;position:relative}
+.lor::before,.lor::after{content:'';position:absolute;top:50%;width:34%;height:1px;background:var(--w10)}
+.lor::before{left:0}.lor::after{right:0}
+.soc{display:flex;gap:8px;margin:10px 20px 0;flex-shrink:0}
+.socb{flex:1;height:38px;background:var(--bg4);border:1px solid var(--w10);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--w80);gap:5px}
+.lft{text-align:center;font-size:10px;color:var(--w20);margin:10px 0 0;flex-shrink:0}
+.lft span{color:var(--acc-l)}
+
+/* ════════════════════════════════════════════════════════
+   ONBOARDING — Wake Time Picker
+   Dal Behance: progress bar segmentata, icona, titolo grande,
+   scroll verticale orari con lime highlight su selezionato
+   ════════════════════════════════════════════════════════ */
+.oprog{display:flex;gap:4px;padding:10px 20px 0;flex-shrink:0}
+.oseg{height:3px;border-radius:50px;flex:1;background:var(--w10)}
+.oseg.d{background:var(--acc)}
+.oico{width:42px;height:42px;background:var(--bg4);border-radius:13px;display:flex;align-items:center;justify-content:center;margin:16px 20px 0;font-size:20px;flex-shrink:0}
+.oti{font-size:20px;font-weight:700;margin:10px 20px 0;flex-shrink:0}
+.tpick{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.tpick::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:78%;height:42px;background:var(--acc);border-radius:12px;z-index:0}
+.ti{font-size:22px;font-weight:700;padding:9px 0;z-index:1;color:var(--w20);width:100%;text-align:center}
+.ti.a{color:#0d1000;font-size:28px}
+.octa{margin:16px 20px 20px;height:52px;background:var(--acc);border-radius:50px;display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 20px;flex-shrink:0}
+.octa-t{font-size:14px;font-weight:700;color:#0d1000}
+.octa-ic{width:38px;height:38px;background:rgba(0,0,0,0.18);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.octa-ic svg{width:14px;height:14px;stroke:#0d1000;fill:none;stroke-width:2.5}
+
+/* ════════════════════════════════════════════════════════
+   CREATE NEW HABIT
+   Dal Behance screenshot 7+8:
+   Tab Regular/Negative/One Task, "+ Create your own" lime,
+   "Or Choose From Presets", lista preset con arrow
+   ════════════════════════════════════════════════════════ */
+.crh{display:flex;justify-content:space-between;align-items:center;padding:12px 20px 14px;flex-shrink:0}
+.crh-t{font-size:16px;font-weight:700}
+.crh svg{width:16px;height:16px;stroke:var(--w60);fill:none;stroke-width:2}
+.ttabs{display:flex;gap:8px;padding:0 20px 12px;flex-shrink:0}
+.ttab{flex:1;padding:10px 4px;background:var(--bg4);border:1px solid var(--w10);border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:500;color:var(--w40)}
+.ttab.a{background:var(--acc-bg);border-color:var(--acc);color:var(--acc-l)}
+.ttab svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
+.cow{margin:0 20px 12px;height:44px;background:var(--acc);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#0d1000;gap:5px;flex-shrink:0}
+.ppre{text-align:center;font-size:10px;color:var(--w20);margin-bottom:8px;flex-shrink:0}
+.plist{padding:0 20px;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.pitem{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--w06);border-radius:10px;padding:11px 12px}
+.pit-l{display:flex;align-items:center;gap:9px}
+.pico{width:30px;height:30px;background:var(--bg4);border-radius:9px;display:flex;align-items:center;justify-content:center}
+.pico svg{width:14px;height:14px;stroke:var(--w60);fill:none;stroke-width:1.8}
+.pn{font-size:12px;font-weight:600}
+.pd{font-size:9px;color:var(--w40);margin-top:2px}
+.parr svg{width:14px;height:14px;stroke:var(--acc-l);fill:none;stroke-width:1.8}
+
+/* ════════════════════════════════════════════════════════
+   WORKOUT / ESERCIZI (schermata aggiunta per forma.ai)
+   Non presente nel Behance originale — disegnata secondo
+   il DNA visivo del progetto con badge allenamento,
+   video esercizi placeholder, macro adattativi
+   ════════════════════════════════════════════════════════ */
+.wkhd{padding:12px 20px 14px;flex-shrink:0}
+.wktit{font-size:18px;font-weight:700;letter-spacing:-0.3px}
+.wksub{font-size:11px;color:var(--w40);margin-top:2px}
+/* Banner allenamento con accent top */
+.wkbanner{
+  margin:0 20px 12px;
+  background:var(--bg3);border-radius:18px;padding:16px;
+  border:1px solid var(--w06);border-top:2.5px solid var(--acc);
+  flex-shrink:0;
+}
+.wkb-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.wkb-lbl{font-size:10px;color:var(--w40);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px}
+.wkb-name{font-size:17px;font-weight:700;letter-spacing:-0.2px}
+.wkb-badge{background:var(--acc-bg);border:1px solid rgba(122,158,126,0.3);border-radius:50px;padding:5px 11px;font-size:10px;font-weight:600;color:var(--acc-l)}
+.wkb-note{background:rgba(122,158,126,0.08);border-radius:10px;padding:9px 12px;display:flex;gap:8px;align-items:center}
+.wkb-dot{width:6px;height:6px;border-radius:50%;background:var(--acc);flex-shrink:0}
+.wkb-ntxt{font-size:11px;color:var(--acc-l);line-height:1.5}
+/* Exercise list */
+.exlbl{font-size:13px;font-weight:600;padding:4px 20px 10px;flex-shrink:0}
+.exlist{padding:0 20px;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.exitem{display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:14px;padding:11px 13px;border:1px solid var(--w06)}
+.exthumb{width:52px;height:42px;border-radius:10px;background:linear-gradient(135deg,rgba(74,107,78,0.4) 0%,rgba(122,158,126,0.2) 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.exthumb svg{width:18px;height:18px;stroke:var(--acc-l);fill:none;stroke-width:1.8}
+.exinfo{flex:1}
+.exname{font-size:12px;font-weight:600;margin-bottom:2px}
+.exdet{font-size:9px;color:var(--w40)}
+.exsets{font-size:12px;font-weight:700;color:var(--acc-l);font-family:var(--mono)}
+
+/* ════════════════════════════════════════════════════════
+   JOURNEY
+   ════════════════════════════════════════════════════════ */
+.jh{display:flex;justify-content:space-between;align-items:center;padding:12px 20px 14px;flex-shrink:0}
+.jt{font-size:18px;font-weight:700}
+.jh svg{width:16px;height:16px;stroke:var(--w60);fill:none;stroke-width:2}
+.jsec{font-size:13px;font-weight:600;padding:0 20px 10px;flex-shrink:0}
+/* Journey cards con foto atleta a destra */
+.jcard{
+  margin:0 20px 8px;
+  background:var(--bg3);border-radius:16px;
+  border:1px solid var(--w06);overflow:hidden;
+  flex-shrink:0;display:flex;align-items:center;
+}
+.jcard-img{width:80px;height:70px;background:linear-gradient(135deg,rgba(122,158,126,0.3) 0%,rgba(74,107,78,0.18) 100%);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:26px}
+.jcard-info{flex:1;padding:11px 12px}
+.jcard-t{font-size:13px;font-weight:600;margin-bottom:5px;line-height:1.3}
+.jcard-badge{display:inline-flex;align-items:center;gap:4px;background:var(--acc-bg);border-radius:50px;padding:3px 9px;font-size:9px;font-weight:500;color:var(--acc-l)}
+.jcard-arr{width:28px;height:28px;background:var(--acc);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:12px;flex-shrink:0}
+.jcard-arr svg{width:11px;height:11px;stroke:#0d1000;fill:none;stroke-width:2.5}
+
+/* ════════════════════════════════════════════════════════
+   HISTORY
+   ════════════════════════════════════════════════════════ */
+.hish{display:flex;justify-content:space-between;align-items:center;padding:12px 20px 12px;flex-shrink:0}
+.hist{font-size:18px;font-weight:700}
+.htabs{display:flex;gap:2px;margin:0 20px 14px;background:var(--bg4);border-radius:50px;padding:3px;flex-shrink:0}
+.htab{flex:1;padding:7px 4px;border-radius:50px;font-size:10px;font-weight:600;text-align:center;color:var(--w40)}
+.htab.a{background:var(--acc);color:#0d1000}
+.mcal{padding:0 20px;flex-shrink:0}
+.mhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.mn{font-size:13px;font-weight:600}
+.mnavs{display:flex;gap:6px}
+.mnav{width:20px;height:20px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center}
+.mnav svg{width:8px;height:8px;stroke:var(--w60);fill:none;stroke-width:2}
+.mdhd{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+.mdn{text-align:center;font-size:9px;font-weight:500;color:var(--w20);padding:3px 0}
+.mgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.mday{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--w40);border-radius:50%}
+.mday.a{background:var(--acc);color:#0d1000;font-weight:700}
+.mday.d{background:var(--acc-bg);color:var(--acc-l)}
+.mday.e{opacity:0}
+
+/* ════════════════════════════════════════════════════════
+   PROFILE
+   ════════════════════════════════════════════════════════ */
+.prfh{display:flex;justify-content:space-between;align-items:center;padding:12px 20px 14px;flex-shrink:0}
+.prft{font-size:18px;font-weight:700}
+.prfh svg{width:16px;height:16px;stroke:var(--w60);fill:none;stroke-width:2}
+.prfhero{display:flex;flex-direction:column;align-items:center;padding-bottom:16px;flex-shrink:0}
+.prfav{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--acc) 0%,var(--acc-d) 100%);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:9px;border:2.5px solid var(--bg3)}
+.prfn{font-size:15px;font-weight:700}
+.prfed{display:flex;align-items:center;gap:4px;margin-top:3px}
+.prfed svg{width:12px;height:12px;stroke:var(--acc-l);fill:none;stroke-width:2}
+.prfed-t{font-size:10px;color:var(--acc-l)}
+.slist{padding:0 20px;display:flex;flex-direction:column;gap:5px;overflow:hidden}
+.sitem{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--w06);border-radius:10px;padding:11px 14px}
+.sl{display:flex;align-items:center;gap:9px}
+.sico{width:28px;height:28px;background:var(--bg4);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.sico svg{width:13px;height:13px;stroke:var(--w60);fill:none;stroke-width:1.8}
+.sn{font-size:12px;font-weight:500}
+.sch svg{width:12px;height:12px;stroke:var(--w40);fill:none;stroke-width:2}
+
+/* ════ PALETTE ════ */
+.palgrid{display:flex;flex-wrap:wrap;gap:16px;margin-top:24px}
+.pal{display:flex;flex-direction:column;gap:8px;align-items:center}
+.psw{width:80px;height:80px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.5)}
+.pn{font-size:10px;font-family:var(--mono);color:var(--w40);text-align:center}
+.ph{font-size:11px;font-family:var(--mono);color:var(--w80)}
+
+/* ════ TYPOGRAPHY ════ */
+.typs{margin-top:32px;display:flex;flex-direction:column;gap:28px}
+.typ{padding-bottom:28px;border-bottom:1px solid var(--w06)}
+.typ:last-child{border-bottom:none}
+.typm{font-size:10px;font-family:var(--mono);color:var(--acc-l);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+
+/* ════ COMPONENTS ════ */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:24px}
+.ccard{background:var(--bg2);border-radius:18px;padding:22px;border:1px solid var(--w06)}
+.clbl{font-size:10px;font-family:var(--mono);color:var(--acc-l);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+
+/* Stat cards */
+.scards{display:flex;gap:8px}
+.scard{flex:1;background:var(--bg4);border-radius:11px;padding:12px;border:1px solid var(--w06)}
+.sci{display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.sci svg{width:13px;height:13px;stroke:var(--w60);fill:none;stroke-width:1.8}
+.sci span{font-size:10px;color:var(--w60)}
+.scv{font-size:18px;font-weight:700;font-family:var(--mono)}
+.scv sub{font-size:12px;color:var(--w20)}
+
+/* Time pills */
+.tpills{display:flex;flex-wrap:wrap;gap:6px}
+.tpill{padding:7px 13px;border-radius:50px;font-size:11px;font-weight:500;background:var(--bg4);color:var(--w40);border:1px solid var(--w10)}
+.tpill.a{background:var(--acc);color:#0d1000;border-color:transparent}
+
+/* Journey cards in component */
+.jc-comp{display:flex;align-items:center;background:var(--bg3);border-radius:14px;border:1px solid var(--w06);overflow:hidden;margin-bottom:7px}
+.jc-img{width:72px;height:62px;background:linear-gradient(135deg,rgba(122,158,126,0.28) 0%,rgba(74,107,78,0.15) 100%);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.jc-inf{flex:1;padding:10px 11px}
+.jc-t{font-size:12px;font-weight:600;margin-bottom:4px}
+.jc-b{display:inline-flex;align-items:center;background:var(--acc-bg);border-radius:50px;padding:2px 8px;font-size:9px;color:var(--acc-l)}
+.jc-arr{width:26px;height:26px;background:var(--acc);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:10px;flex-shrink:0}
+.jc-arr svg{width:10px;height:10px;stroke:#0d1000;fill:none;stroke-width:2.5}
+
+/* Steps card */
+.steps-card{background:var(--acc-bg);border-radius:11px;padding:11px 14px;border:1px solid rgba(122,158,126,0.2);display:flex;align-items:center;gap:10px}
+.steps-bar-t{height:3px;background:var(--w10);border-radius:3px;margin:5px 0 4px;overflow:hidden}
+.steps-bar-f{height:100%;width:50%;background:var(--acc);border-radius:3px}
+
+/* Grid demo */
+.gdemo{background:var(--bg2);border-radius:18px;padding:24px;border:1px solid var(--w06);margin-top:16px}
+.gphone{height:110px;background:var(--bg);border-radius:10px;border:1px solid var(--w10);display:flex;align-items:center;gap:16px;padding:0 20px}
+.gcol{flex:1;height:76px;background:rgba(122,158,126,0.07);border:1px solid rgba(122,158,126,0.15);border-radius:4px}
+.ginfo{margin-top:14px;display:flex;gap:24px}
+.gsv{font-size:18px;font-weight:700;color:var(--acc-l)}
+.gsl{font-size:9px;color:var(--w40);font-family:var(--mono)}
+
+/* Footer */
+.foot{text-align:center;padding:48px 0;border-top:1px solid var(--w06);margin-top:48px}
+.fl{font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px}
+.fl s{color:var(--acc);text-decoration:none}
+.fn{font-size:10px;font-family:var(--mono);color:var(--w20)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">forma<s>.ai</s></div>
+  <div class="hdr-sub">Design Reference v3.0 — Pixel faithful al Behance</div>
+  <div class="hdr-note">
+    Reference: Habit &amp; Fitness Tracker App — ITO Digital Agency LLC (Behance Apr 2025)<br>
+    Font: <strong>Poppins</strong> (confermato da screenshot Typography) · Accent: #EAFF55 → <strong>#7A9E7E</strong> (sage FORMA) · BG oliva: #121400
+  </div>
+</div>
+
+<!-- ═══ ROW 1: SPLASH + HOME + LOGIN + ONBOARDING + CREATE ═══ -->
+<div class="s">
+  <div class="s-tag">Schermate principali (dal Behance)</div>
+  <div class="row">
+
+    <!-- 01 SPLASH -->
+    <div class="pw">
+      <div class="plbl">01 · Splash</div>
+      <div class="phone"><div class="phone-inner">
+        <div class="di"></div>
+        <div class="sb"><span>9:30</span><div class="sb-r"><span style="font-size:10px;opacity:.8">▲▲▲</span><div class="bat"><div class="bat-f"></div></div></div></div>
+        <div class="spl">
+          <div class="spl-stripes"></div><div class="spl-glo"></div><div class="spl-fig"></div><div class="spl-ov"></div>
+          <div class="spl-con">
+            <div class="spl-t1">Your Path to</div>
+            <div class="spl-t2">Success</div>
+            <div class="spl-t3">Starts with<br>Daily Tracking</div>
+            <div class="spl-cta">
+              <div class="spl-l">
+                <div class="spl-chk"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+                <span class="spl-txt">Get Started</span>
+              </div>
+              <div class="spl-arr">&rsaquo;&rsaquo;</div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 02 HOME -->
+    <div class="pw">
+      <div class="plbl">02 · Home — Today's Habit</div>
+      <div class="phone"><div class="phone-inner">
+        <div class="di"></div>
+        <div class="sb"><span>9:30</span><div class="sb-r"><span style="font-size:10px;opacity:.8">▲▲▲</span><div class="bat"><div class="bat-f"></div></div></div></div>
+        <div class="body">
+          <div class="hh">
+            <div class="hh-l"><div class="hav">👤</div><div><div class="hname">Alex Cole</div><div class="htit">Today's Habit</div></div></div>
+            <div class="hplus"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+          </div>
+          <div class="cal">
+            <div class="cal-hd"><span class="cal-mo">March 2025</span><div class="cal-navs"><div class="cn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div><div class="cn"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div></div></div>
+            <div class="cal-days">
+              <div class="cd"><div class="cdn">Sun</div><div class="cdd">2</div></div>
+              <div class="cd a"><div class="cdn">Mon</div><div class="cdd">3</div></div>
+              <div class="cd"><div class="cdn">Tue</div><div class="cdd">4</div></div>
+              <div class="cd"><div class="cdn">Wed</div><div class="cdd">5</div></div>
+              <div class="cd"><div class="cdn">Thu</div><div class="cdd">6</div></div>
+            </div>
+          </div>
+          <div class="ptabs"><div class="pt a">Morning</div><div class="pt">Afternoon</div><div class="pt">Evening</div></div>
+          <div class="sh"><span class="sh-t">Start New Habits</span><span class="sh-l">See All</span></div>
+          <div class="hbig">
+            <div class="hbig-figbg"></div><div class="hbig-fig"></div>
+            <div class="hbig-info">
+              <div class="hbig-t">Eat &amp; drink<br>healthily</div>
+              <div class="hbig-s">Stay healthy, track daily food and drink intake easily.</div>
+            </div>
+            <div class="hbig-arr"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="bnav">
+            <div class="bi"><div class="bi-pill"></div><svg class="bi-ico a" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span class="bi-lbl a">Today</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="bi-lbl">Journey</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="bi-lbl">History</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="bi-lbl">Profile</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 03 LOGIN -->
+    <div class="pw">
+      <div class="plbl">03 · Login / Sign up</div>
+      <div class="phone"><div class="phone-inner">
+        <div class="di"></div>
+        <div class="sb"><span>9:30</span><div class="sb-r"><span style="font-size:10px;opacity:.8">▲▲▲</span><div class="bat"><div class="bat-f"></div></div></div></div>
+        <div class="body">
+          <div class="lhd">Sign Up or Log In to<br>Build Habits</div>
+          <div class="ltabs"><div class="ltab a">Login</div><div class="ltab">Sign up</div></div>
+          <div class="lform">
+            <div class="linp"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>Email Address</span></div>
+            <div class="linp"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><span>Password</span></div>
+            <div class="lrow"><div class="lrem"><div class="chk"></div>Remember me</div><span class="lfgt">Forgot password</span></div>
+          </div>
+          <div class="cta-f">Login</div>
+          <div class="lor">Or login with</div>
+          <div class="soc"><div class="socb">🇬 Google</div><div class="socb">🍎 Apple</div></div>
+          <div class="lft">Don't have an account? <span>Create an account</span></div>
+          <div style="flex:1"></div>
+          <div class="bnav">
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span class="bi-lbl">Today</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg><span class="bi-lbl">Journey</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span class="bi-lbl">History</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/></svg><span class="bi-lbl">Profile</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 04 ONBOARDING -->
+    <div class="pw">
+      <div class="plbl">04 · Onboarding — Wake Time</div>
+      <div class="phone"><div class="phone-inner">
+        <div class="di"></div>
+        <div class="sb"><span>9:30</span><div class="sb-r"><span style="font-size:10px;opacity:.8">▲▲▲</span><div class="bat"><div class="bat-f"></div></div></div></div>
+        <div class="body">
+          <div class="oprog"><div class="oseg d"></div><div class="oseg d"></div><div class="oseg d"></div><div class="oseg"></div><div class="oseg"></div></div>
+          <div class="oico">⏰</div>
+          <div class="oti">Your Wake Time?</div>
+          <div class="tpick">
+            <div class="ti">06:00</div>
+            <div class="ti">07:00</div>
+            <div class="ti a">08:00</div>
+            <div class="ti">09:00</div>
+            <div class="ti">10:00</div>
+          </div>
+          <div class="octa">
+            <span class="octa-t">Continue</span>
+            <div class="octa-ic"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 05 CREATE HABIT -->
+    <div class="pw">
+      <div class="plbl">05 · Create New Habit</div>
+      <div class="phone"><div class="phone-inner">
+        <div class="di"></div>
+        <div class="sb"><span>9:30</span><div class="sb-r"><span style="font-size:10px;opacity:.8">▲▲▲</span><div class="bat"><div class="bat-f"></div></div></div></div>
+        <div class="body">
+          <div class="crh"><div><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></div><div class="crh-t">Create a new habit</div><div><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div></div>
+          <div class="ttabs">
+            <div class="ttab a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Regular</div>
+            <div class="ttab"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>Negative</div>
+            <div class="ttab"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg>One Task</div>
+          </div>
+          <div class="cow">+ Create your own</div>
+          <div class="ppre">Or Choose From Presets</div>
+          <div class="plist">
+            <div class="pitem"><div class="pit-l"><div class="pico"><svg viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></div><div><div class="pn">Habits in trend</div><div class="pd">Move fast, Stay Relevant</div></div></div><div class="parr"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+            <div class="pitem"><div class="pit-l"><div class="pico"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><div><div class="pn">Essential habits</div><div class="pd">Simplicity Sparks Daily Joy</div></div></div><div class="parr"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+            <div class="pitem"><div class="pit-l"><div class="pico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="pn">Ease stress</div><div class="pd">Breaks Build Better You</div></div></div><div class="parr"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+            <div class="pitem"><div class="pit-l"><div class="pico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="pn">Good morning</div><div class="pd">Start Strong, Shine Bright</div></div></div><div class="parr"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="bnav">
+            <div class="bi"><div class="bi-pill"></div><svg class="bi-ico a" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span class="bi-lbl a">Today</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg><span class="bi-lbl">Journey</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span class="bi-lbl">History</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/></svg><span class="bi-lbl">Profile</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ ROW 2: WORKOUT + JOURNEY + HISTORY + PROFILE ═══ -->
+<div class="s">
+  <div class="s-tag">Workout (forma.ai) + Schermate secondarie</div>
+  <div class="row">
+
+    <!-- 06 WORKOUT — forma.ai exclusive -->
+    <div class="pw">
+      <div class="plbl">06 · Workout — forma.ai ★</div>
+      <div class="phone"><div class="phone-inner">
+        <div class="di"></div>
+        <div class="sb"><span>9:30</span><div class="sb-r"><span style="font-size:10px;opacity:.8">▲▲▲</span><div class="bat"><div class="bat-f"></div></div></div></div>
+        <div class="body">
+          <div class="wkhd">
+            <div class="wktit">Scheda Allenamento</div>
+            <div class="wksub">Mercoledì · Giorno Gambe 🏋️</div>
+          </div>
+          <div class="wkbanner">
+            <div class="wkb-row">
+              <div><div class="wkb-lbl">Allenamento oggi</div><div class="wkb-name">Gambe — Ipertrofia</div></div>
+              <div class="wkb-badge">+200 kcal</div>
+            </div>
+            <div class="wkb-note">
+              <div class="wkb-dot"></div>
+              <div class="wkb-ntxt">+40g carb a pranzo adattati automaticamente per le gambe</div>
+            </div>
+          </div>
+          <div class="exlbl">Esercizi di oggi</div>
+          <div class="exlist">
+            <div class="exitem">
+              <div class="exthumb"><svg viewBox="0 0 24 24"><path d="M6 4v16M18 4v16M6 12h12"/></svg></div>
+              <div class="exinfo"><div class="exname">Squat con bilanciere</div><div class="exdet">Video 15s · Vista laterale</div></div>
+              <div class="exsets">4×8</div>
+            </div>
+            <div class="exitem">
+              <div class="exthumb"><svg viewBox="0 0 24 24"><path d="M3 12h18M12 3l-9 9 9 9"/></svg></div>
+              <div class="exinfo"><div class="exname">Affondi alternati</div><div class="exdet">Video 12s · Vista frontale</div></div>
+              <div class="exsets">3×12</div>
+            </div>
+            <div class="exitem">
+              <div class="exthumb"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8"/></svg></div>
+              <div class="exinfo"><div class="exname">Leg press</div><div class="exdet">Video 10s · Vista laterale</div></div>
+              <div class="exsets">4×10</div>
+            </div>
+            <div class="exitem">
+              <div class="exthumb"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10"/></svg></div>
+              <div class="exinfo"><div class="exname">Romanian Deadlift</div><div class="exdet">Video 14s · Vista laterale</div></div>
+              <div class="exsets">3×10</div>
+            </div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="bnav">
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span class="bi-lbl">Today</span></div>
+            <div class="bi"><div class="bi-pill"></div><svg class="bi-ico a" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="bi-lbl a">Workout</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span class="bi-lbl">History</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/></svg><span class="bi-lbl">Profile</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 07 JOURNEY -->
+    <div class="pw">
+      <div class="plbl">07 · Journey</div>
+      <div class="phone"><div class="phone-inner">
+        <div class="di"></div>
+        <div class="sb"><span>9:30</span><div class="sb-r"><span style="font-size:10px;opacity:.8">▲▲▲</span><div class="bat"><div class="bat-f"></div></div></div></div>
+        <div class="body">
+          <div class="jh"><span class="jt">Journey</span><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+          <div class="jsec">Recommended for you</div>
+          <div class="jcard"><div class="jcard-img">🏃</div><div class="jcard-info"><div class="jcard-t">Walk Everyday For Health</div><div class="jcard-badge">🗓 30 days</div></div><div class="jcard-arr"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+          <div class="jsec" style="margin-top:4px">Recommended for you</div>
+          <div class="jcard"><div class="jcard-img">🚭</div><div class="jcard-info"><div class="jcard-t">Stay Good Bye to Sugar</div><div class="jcard-badge">🗓 21 days</div></div><div class="jcard-arr"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+          <div class="jcard"><div class="jcard-img">🧘</div><div class="jcard-info"><div class="jcard-t">Meditation for Peace of Mind</div><div class="jcard-badge">🗓 14 days</div></div><div class="jcard-arr"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+          <div style="flex:1"></div>
+          <div class="bnav">
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span class="bi-lbl">Today</span></div>
+            <div class="bi"><div class="bi-pill"></div><svg class="bi-ico a" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="bi-lbl a">Journey</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span class="bi-lbl">History</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/></svg><span class="bi-lbl">Profile</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 08 HISTORY -->
+    <div class="pw">
+      <div class="plbl">08 · History</div>
+      <div class="phone"><div class="phone-inner">
+        <div class="di"></div>
+        <div class="sb"><span>9:30</span><div class="sb-r"><span style="font-size:10px;opacity:.8">▲▲▲</span><div class="bat"><div class="bat-f"></div></div></div></div>
+        <div class="body">
+          <div class="hish"><span class="hist">History</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg></div>
+          <div class="htabs"><div class="htab a">Calendar</div><div class="htab">All habits</div><div class="htab">Rewards</div></div>
+          <div class="mcal">
+            <div class="mhd"><span class="mn">March 2025</span><div class="mnavs"><div class="mnav"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="rgba(255,255,255,0.6)" fill="none" stroke-width="2"/></svg></div><div class="mnav"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke="rgba(255,255,255,0.6)" fill="none" stroke-width="2"/></svg></div></div></div>
+            <div class="mdhd"><div class="mdn">S</div><div class="mdn">M</div><div class="mdn">T</div><div class="mdn">W</div><div class="mdn">T</div><div class="mdn">F</div><div class="mdn">S</div></div>
+            <div class="mgrid">
+              <div class="mday e"></div><div class="mday e"></div><div class="mday e"></div><div class="mday e"></div><div class="mday e"></div><div class="mday">1</div><div class="mday">2</div>
+              <div class="mday d">3</div><div class="mday d">4</div><div class="mday d">5</div><div class="mday d">6</div><div class="mday d">7</div><div class="mday d">8</div><div class="mday a">9</div>
+              <div class="mday">10</div><div class="mday">11</div><div class="mday">12</div><div class="mday">13</div><div class="mday">14</div><div class="mday">15</div><div class="mday">16</div>
+              <div class="mday">17</div><div class="mday">18</div><div class="mday">19</div><div class="mday">20</div><div class="mday">21</div><div class="mday">22</div><div class="mday">23</div>
+              <div class="mday">24</div><div class="mday">25</div><div class="mday">26</div><div class="mday">27</div><div class="mday">28</div><div class="mday">29</div><div class="mday">30</div>
+            </div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="bnav">
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span class="bi-lbl">Today</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg><span class="bi-lbl">Journey</span></div>
+            <div class="bi"><div class="bi-pill"></div><svg class="bi-ico a" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="bi-lbl a">History</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/></svg><span class="bi-lbl">Profile</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 09 PROFILE -->
+    <div class="pw">
+      <div class="plbl">09 · Profile</div>
+      <div class="phone"><div class="phone-inner">
+        <div class="di"></div>
+        <div class="sb"><span>9:30</span><div class="sb-r"><span style="font-size:10px;opacity:.8">▲▲▲</span><div class="bat"><div class="bat-f"></div></div></div></div>
+        <div class="body">
+          <div class="prfh"><span class="prft">Profile</span><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+          <div class="prfhero">
+            <div class="prfav">👤</div>
+            <div class="prfn">Alex Cole</div>
+            <div class="prfed"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span class="prfed-t">Edit Profile</span></div>
+          </div>
+          <div class="slist">
+            <div class="sitem"><div class="sl"><div class="sico"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div><span class="sn">Notification</span></div><div class="sch"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div></div>
+            <div class="sitem"><div class="sl"><div class="sico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33"/></svg></div><span class="sn">General setting</span></div><div class="sch"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div></div>
+            <div class="sitem"><div class="sl"><div class="sico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div><span class="sn">Language option</span></div><div class="sch"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div></div>
+            <div class="sitem"><div class="sl"><div class="sico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><span class="sn">Share with friends</span></div><div class="sch"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div></div>
+            <div class="sitem"><div class="sl"><div class="sico"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><span class="sn">Rate us</span></div><div class="sch"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div></div>
+            <div class="sitem"><div class="sl"><div class="sico"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><span class="sn">Feedback</span></div><div class="sch"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div></div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="bnav">
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span class="bi-lbl">Today</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg><span class="bi-lbl">Journey</span></div>
+            <div class="bi"><svg class="bi-ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span class="bi-lbl">History</span></div>
+            <div class="bi"><div class="bi-pill"></div><svg class="bi-ico a" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="bi-lbl a">Profile</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TYPOGRAPHY & COLORS -->
+<div class="s">
+  <div class="s-tag">Typography &amp; Color (dal Behance screenshot 4)</div>
+  <div class="palgrid">
+    <div class="pal"><div class="psw" style="background:#121400;border:1px solid rgba(255,255,255,0.1)"></div><div class="pn">--bg originale</div><div class="ph">#121400</div></div>
+    <div class="pal"><div class="psw" style="background:#1a1c0f"></div><div class="pn">--bg-card</div><div class="ph">#1a1c0f</div></div>
+    <div class="pal"><div class="psw" style="background:#2a2d1a"></div><div class="pn">--bg-input</div><div class="ph">#2a2d1a</div></div>
+    <div class="pal"><div class="psw" style="background:#7A9E7E"></div><div class="pn">--acc FORMA</div><div class="ph">#7A9E7E ✓</div></div>
+    <div class="pal"><div class="psw" style="background:#9EC4A2"></div><div class="pn">--acc-light</div><div class="ph">#9EC4A2</div></div>
+    <div class="pal"><div class="psw" style="background:#EAFF55"></div><div class="pn">Behance originale</div><div class="ph">#EAFF55 ✕</div></div>
+    <div class="pal"><div class="psw" style="background:#E8E7EA"></div><div class="pn">bg chiaro (Behance)</div><div class="ph">#E8E7EA</div></div>
+    <div class="pal"><div class="psw" style="background:#FFFFFF"></div><div class="pn">--white</div><div class="ph">#FFFFFF</div></div>
+  </div>
+
+  <div class="typs">
+    <div class="typ">
+      <div class="typm">Poppins 800 · Splash Display · 30px · color sage accent</div>
+      <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;color:rgba(255,255,255,0.8);margin-bottom:2px">Your Path to</div>
+      <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:30px;color:#7A9E7E;letter-spacing:-0.5px;line-height:1.1">Success</div>
+      <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;color:rgba(255,255,255,0.8)">Starts with Daily Tracking</div>
+    </div>
+    <div class="typ">
+      <div class="typm">Poppins 700 · Screen title · 18px</div>
+      <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:18px">Today's Habit · Journey · History · Profile</div>
+    </div>
+    <div class="typ">
+      <div class="typm">Poppins 700 · Card title · 18px bold — "Eat &amp; drink healthily"</div>
+      <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;line-height:1.2">Eat &amp; drink<br>healthily</div>
+    </div>
+    <div class="typ">
+      <div class="typm">Poppins 500 · Section header · 14px</div>
+      <div style="font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;display:flex;justify-content:space-between;max-width:260px"><span>Start New Habits</span><span style="color:rgba(255,255,255,0.4)">See All</span></div>
+    </div>
+    <div class="typ">
+      <div class="typm">Poppins 400 · Body text · 11px · opacity 55%</div>
+      <div style="font-family:'Poppins',sans-serif;font-weight:400;font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5">Stay healthy, track daily food and drink intake easily.</div>
+    </div>
+    <div class="typ">
+      <div class="typm">DM Mono 500 · Data / Numbers · 11-18px</div>
+      <div style="font-family:'DM Mono',monospace;font-weight:500;font-size:16px;color:#9EC4A2">08:00 · 30 days · 100/60 · 4×8 reps · 50%</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPONENTS -->
+<div class="s">
+  <div class="s-tag">Components (dal Behance screenshot 8-9-10)</div>
+  <div class="cgrid">
+
+    <div class="ccard">
+      <div class="clbl">Stat Cards — Heart Rate / Blood Sugar</div>
+      <div class="scards">
+        <div class="scard">
+          <div class="sci"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg><span>Heart Rate</span></div>
+          <div class="scv">100 <sub>/ 60</sub></div>
+        </div>
+        <div class="scard">
+          <div class="sci"><svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg><span>Blood sugar</span></div>
+          <div class="scv">100 <sub>/ 70</sub></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ccard">
+      <div class="clbl">Do It At — Time Pills (dal Behance)</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between">Do It At <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></div>
+      <div class="tpills">
+        <div class="tpill a">Anytime</div>
+        <div class="tpill">🕐 Morning</div>
+        <div class="tpill">☀️ Afternoon</div>
+        <div class="tpill">🌙 Evening</div>
+      </div>
+    </div>
+
+    <div class="ccard">
+      <div class="clbl">Journey Cards (componente)</div>
+      <div class="jc-comp"><div class="jc-img">🏃</div><div class="jc-inf"><div class="jc-t">Walk Everyday For Health</div><div class="jc-b">🗓 30 days</div></div><div class="jc-arr"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+      <div class="jc-comp"><div class="jc-img">🧘</div><div class="jc-inf"><div class="jc-t">Meditation for Peace of Mind</div><div class="jc-b">🗓 14 days</div></div><div class="jc-arr"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+    </div>
+
+    <div class="ccard">
+      <div class="clbl">CTA Buttons</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="height:46px;background:var(--acc);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#121400;font-family:var(--font)">Login</div>
+        <div style="height:52px;background:var(--acc);border-radius:50px;display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:38px;height:38px;background:rgba(0,0,0,0.22);border-radius:50%;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#121400" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <span style="font-size:15px;font-weight:700;color:#121400;font-family:var(--font)">Get Started</span>
+          </div>
+          <div style="background:rgba(0,0,0,0.18);border-radius:50px;padding:8px 14px;font-size:14px;color:rgba(18,20,0,0.55);letter-spacing:-2px">&rsaquo;&rsaquo;</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ccard">
+      <div class="clbl">Steps Progress Card</div>
+      <div class="steps-card">
+        <div style="font-size:18px">👟</div>
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--w40)">Steps</div>
+          <div class="steps-bar-t"><div class="steps-bar-f"></div></div>
+          <div style="font-size:10px;color:var(--w20)">7500/5000</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:9px;color:var(--w40)">50% lower ↓</div>
+          <div style="font-size:16px;font-weight:700;color:var(--acc-l);font-family:var(--mono)">50%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ccard">
+      <div class="clbl">Calendar Week Strip</div>
+      <div style="display:flex;gap:3px">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;border-radius:12px">
+          <div style="font-size:9px;color:var(--w40);text-transform:uppercase;font-weight:500">Sun</div>
+          <div style="font-size:15px;font-weight:700;color:var(--w60)">2</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;border-radius:12px;background:var(--acc)">
+          <div style="font-size:9px;color:rgba(13,16,0,0.5);text-transform:uppercase;font-weight:500">Mon</div>
+          <div style="font-size:15px;font-weight:700;color:#0d1000">3</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;border-radius:12px">
+          <div style="font-size:9px;color:var(--w40);text-transform:uppercase;font-weight:500">Tue</div>
+          <div style="font-size:15px;font-weight:700;color:var(--w60)">4</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;border-radius:12px">
+          <div style="font-size:9px;color:var(--w40);text-transform:uppercase;font-weight:500">Wed</div>
+          <div style="font-size:15px;font-weight:700;color:var(--w60)">5</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;border-radius:12px">
+          <div style="font-size:9px;color:var(--w40);text-transform:uppercase;font-weight:500">Thu</div>
+          <div style="font-size:15px;font-weight:700;color:var(--w60)">6</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- GRID SYSTEM -->
+<div class="s">
+  <div class="s-tag">Grid System &amp; Spacing (dal Behance screenshot 5)</div>
+  <div class="gdemo">
+    <div style="font-size:11px;color:var(--w40);margin-bottom:14px;font-family:var(--mono)">iPhone 14 Pro · Frame: 375px · Columns: 4 · Margin: 20px · Gutter: 16px</div>
+    <div class="gphone"><div class="gcol"></div><div class="gcol"></div><div class="gcol"></div><div class="gcol"></div></div>
+    <div class="ginfo">
+      <div><div class="gsv">4</div><div class="gsl">COLUMNS</div></div>
+      <div><div class="gsv">20px</div><div class="gsl">MARGIN</div></div>
+      <div><div class="gsv">16px</div><div class="gsl">GUTTER</div></div>
+      <div><div class="gsv">375</div><div class="gsl">FRAME (px)</div></div>
+      <div><div class="gsv">812</div><div class="gsl">HEIGHT (px)</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  <div class="fl">forma<s>.ai</s></div>
+  <div class="fn">Design Reference v3.0 · Maggio 2026 · Informamentis S.r.l. · Pellegrino Bozzella · Dubai</div>
+  <div class="fn" style="margin-top:5px;color:rgba(122,158,126,0.35)">Reference: Habit &amp; Fitness Tracker App — ITO Digital Agency LLC (Behance Apr 2025)</div>
+</div>
+
+</body>
+</html>

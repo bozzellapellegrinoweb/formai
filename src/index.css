@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Background layers ── */
+  --color-bg:      #0e1008;
+  --color-bg2:     #151809;
+  --color-bg3:     #1c1f0d;
+  --color-bg4:     #252912;
+
+  /* ── Primary accent — electric lime ── */
+  --color-lime:       #EAFF55;
+  --color-lime-light: #d4f530;
+  --color-lime-dark:  #7a9900;
+  --color-lime-bg:    rgba(234,255,85,0.10);
+
+  /* ── Text ── */
+  --color-white: #FFFFFF;
+  --color-ink:   #0a0d00;
+
+  /* ── Fonts ── */
+  --font-sans: 'Poppins', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+
+  /* ── Radius ── */
+  --radius-card:    14px;
+  --radius-card-lg: 18px;
+  --radius-pill:    50px;
+  --radius-input:   10px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #0e1008;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(234,255,85,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(234,255,85,0.03) 0%, transparent 60%);
+  color: #FFFFFF;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  min-height: 100svh;
+}
