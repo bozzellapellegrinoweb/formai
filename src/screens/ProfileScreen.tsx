@@ -1,9 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import StatusBar from '../components/ui/StatusBar'
-import BottomNav from '../components/ui/BottomNav'
-import { mockUser } from '../lib/mock/user'
-import { Flame, Sparkles, Bell, Settings, Globe, Users, Star, MessageSquare, Pencil } from '../components/ui/AppIcons'
+import { useNavigate } from 'react-router-dom'
+import { Flame, Sparkles, MessageSquare, Pencil } from '../components/ui/AppIcons'
+import { signOut, useAuth, getProfile } from '../lib/auth'
 
 const c = {
   bg:     '#0e1008',
@@ -29,31 +28,8 @@ type WeightEntry = { val: number; date: string }
 type MisureData = { vita: number; petto: number; bicipite: number; coscia: number; fianchi: number }
 type MisureEntry = { date: string; data: MisureData }
 
-function DynamicIsland() {
-  return (
-    <div style={{
-      position: 'absolute',
-      top: 12, left: '50%', transform: 'translateX(-50%)',
-      width: 90, height: 26,
-      background: '#000', borderRadius: 50, zIndex: 30,
-    }}/>
-  )
-}
 
-const INITIAL_WEIGHTS: WeightEntry[] = [
-  { val: 84.2, date: '28 apr' },
-  { val: 83.8, date: '29 apr' },
-  { val: 83.5, date: '30 apr' },
-  { val: 83.1, date: '1 mag' },
-  { val: 82.7, date: '2 mag' },
-  { val: 82.4, date: '3 mag' },
-  { val: 82.0, date: '4 mag' },
-]
-
-const MISURE_HISTORY_INIT: MisureEntry[] = [
-  { date: '1 apr', data: { vita: 84, petto: 99, bicipite: 36, coscia: 59, fianchi: 97 } },
-  { date: '4 mag', data: { vita: 82, petto: 98, bicipite: 37, coscia: 58, fianchi: 96 } },
-]
+const EMPTY_MISURE: MisureData = { vita: 0, petto: 0, bicipite: 0, coscia: 0, fianchi: 0 }
 
 const chartW = 280
 const chartH = 52
@@ -95,8 +71,8 @@ function StatBox({ label, val, unit }: { label: string; val: string; unit: strin
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
     }}>
       <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 18, fontWeight: 700, color: c.w }}>{val}</span>
-      <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>{unit}</span>
-      <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40, marginTop: 1 }}>{label}</span>
+      <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>{unit}</span>
+      <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, marginTop: 1 }}>{label}</span>
     </div>
   )
 }
@@ -105,13 +81,19 @@ const MISURE_LABELS: Record<keyof MisureData, string> = {
   vita: 'Vita', petto: 'Petto', bicipite: 'Bicipite', coscia: 'Coscia', fianchi: 'Fianchi',
 }
 
-const settingsItems = [
-  { icon: <Bell size={14} color={c.w60} strokeWidth={1.6} />, label: 'Notifiche' },
-  { icon: <Settings size={14} color={c.w60} strokeWidth={1.6} />, label: 'Impostazioni' },
-  { icon: <Globe size={14} color={c.w60} strokeWidth={1.6} />, label: 'Lingua' },
-  { icon: <Users size={14} color={c.w60} strokeWidth={1.6} />, label: 'Condividi con amici' },
-  { icon: <Star size={14} color={c.w60} strokeWidth={1.6} />, label: "Valutaci sull'App Store" },
-  { icon: <MessageSquare size={14} color={c.w60} strokeWidth={1.6} />, label: 'Feedback a forma.ai' },
+// Settings items with optional action
+type SettingsItem = { icon: React.ReactNode; label: string; action?: () => void; badge?: string }
+const buildSettingsItems = (navigate: ReturnType<typeof useNavigate>): SettingsItem[] => [
+  {
+    icon: <Pencil size={14} color={c.w60} strokeWidth={1.6} />,
+    label: 'Modifica profilo',
+    action: () => navigate('/onboarding'),
+  },
+  {
+    icon: <MessageSquare size={14} color={c.w60} strokeWidth={1.6} />,
+    label: 'Invia feedback',
+    action: () => window.open('mailto:bozzellapellegrino@gmail.com?subject=Feedback forma.ai', '_blank'),
+  },
 ]
 
 function todayLabel() {
@@ -120,23 +102,40 @@ function todayLabel() {
 }
 
 export default function ProfileScreen() {
-  const [weights, setWeights] = useState<WeightEntry[]>(INITIAL_WEIGHTS)
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const settingsItems = buildSettingsItems(navigate)
+  const [profile, setProfile] = useState<Record<string, unknown> | null>(null)
+
+  const [weights, setWeights] = useState<WeightEntry[]>([])
   const [showPesoInput, setShowPesoInput] = useState(false)
   const [nuovoPeso, setNuovoPeso] = useState('')
   const [showWeightHistory, setShowWeightHistory] = useState(false)
 
-  const [misureHistory, setMisureHistory] = useState<MisureEntry[]>(MISURE_HISTORY_INIT)
+  const [misureHistory, setMisureHistory] = useState<MisureEntry[]>([])
   const [editMisure, setEditMisure] = useState(false)
-  const [misureDraft, setMisureDraft] = useState<MisureData>(MISURE_HISTORY_INIT[MISURE_HISTORY_INIT.length - 1].data)
+  const [misureDraft, setMisureDraft] = useState<MisureData>(EMPTY_MISURE)
   const [showMisureHistory, setShowMisureHistory] = useState(false)
 
-  const currentMisure = misureHistory[misureHistory.length - 1].data
+  useEffect(() => {
+    if (user) {
+      getProfile(user.id).then(p => {
+        setProfile(p)
+        if (p?.peso_kg) {
+          setWeights([{ val: p.peso_kg as number, date: todayLabel() }])
+        }
+      })
+    }
+  }, [user])
+
+  const currentMisure = misureHistory.length > 0 ? misureHistory[misureHistory.length - 1].data : EMPTY_MISURE
   const prevMisure = misureHistory.length > 1 ? misureHistory[misureHistory.length - 2].data : null
 
-  const currentWeight = weights[weights.length - 1].val
-  const firstWeight = weights[0].val
+  const currentWeight = weights.length > 0 ? weights[weights.length - 1].val : (profile?.peso_kg as number | null) ?? 0
+  const firstWeight = weights.length > 0 ? weights[0].val : currentWeight
   const delta = (currentWeight - firstWeight).toFixed(1)
-  const bmi = (currentWeight / Math.pow(mockUser.height_cm / 100, 2)).toFixed(1)
+  const altezza = (profile?.altezza_cm as number | null) ?? 170
+  const bmi = currentWeight > 0 ? (currentWeight / Math.pow(altezza / 100, 2)).toFixed(1) : '—'
 
   const handleSavePeso = () => {
     const val = parseFloat(nuovoPeso.replace(',', '.'))
@@ -155,15 +154,18 @@ export default function ProfileScreen() {
   return (
     <div style={{
       background: c.bg,
-      height: '100svh',
-      display: 'flex', flexDirection: 'column',
-      maxWidth: 390, margin: '0 auto',
-      position: 'relative',
+      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
     }}>
-      <DynamicIsland />
-      <StatusBar />
 
-      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+      <div style={{
+        position: 'absolute',
+        top: 'env(safe-area-inset-top)',
+        left: 0, right: 0, bottom: 0,
+        overflowY: 'scroll',
+        WebkitOverflowScrolling: 'touch',
+        display: 'flex', flexDirection: 'column',
+        paddingBottom: 'var(--nav-h)',
+      }}>
 
         {/* Header */}
         <div style={{
@@ -177,8 +179,8 @@ export default function ProfileScreen() {
             border: `1px solid rgba(234,255,85,0.18)`,
           }}>
             <Flame size={13} color={c.lime} strokeWidth={1.6} />
-            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, fontWeight: 700, color: c.lime }}>{mockUser.streak}</span>
-            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.limeD }}>giorni</span>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, fontWeight: 700, color: c.lime }}>0</span>
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeD }}>giorni</span>
           </div>
         </div>
 
@@ -191,16 +193,16 @@ export default function ProfileScreen() {
             fontFamily: "'Poppins', sans-serif", fontSize: 20, fontWeight: 700, color: c.ink,
             flexShrink: 0,
           }}>
-            {mockUser.avatar_initials}
+            {user?.email?.slice(0, 2).toUpperCase() ?? 'ME'}
           </div>
           <div>
             <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 17, fontWeight: 700, color: c.w }}>
-              {mockUser.name}
+              {(profile?.nome as string) || user?.email?.split('@')[0] || 'Profilo'}
             </div>
-            <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40, marginTop: 2 }}>
+            <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, marginTop: 2 }}>
               Obiettivo: <span style={{ color: c.limeD, fontWeight: 600, textTransform: 'capitalize' }}>
-                {mockUser.goal}
-              </span> · {mockUser.workouts_per_week}x/settimana
+                {(profile?.obiettivo as string) || '—'}
+              </span> · {(profile?.frequenza_allenamento as number | null) ?? '—'}x/settimana
             </div>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 4,
@@ -208,7 +210,7 @@ export default function ProfileScreen() {
               border: `1px solid rgba(234,255,85,0.15)`, cursor: 'pointer',
             }}>
               <Pencil size={9} color={c.limeD} strokeWidth={2} />
-              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.limeD }}>Modifica profilo</span>
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeD }}>Modifica profilo</span>
             </div>
           </div>
         </div>
@@ -216,8 +218,8 @@ export default function ProfileScreen() {
         {/* Stats row */}
         <div style={{ padding: '0 20px 12px', display: 'flex', gap: 8 }}>
           <StatBox label="Peso" val={`${currentWeight}`} unit="kg" />
-          <StatBox label="Altezza" val={`${mockUser.height_cm}`} unit="cm" />
-          <StatBox label="Età" val={`${mockUser.age}`} unit="anni" />
+          <StatBox label="Altezza" val={profile?.altezza_cm ? `${profile.altezza_cm}` : '—'} unit="cm" />
+          <StatBox label="Età" val={profile?.eta ? `${profile.eta}` : '—'} unit="anni" />
           <StatBox label="BMI" val={bmi} unit="indice" />
         </div>
 
@@ -231,11 +233,11 @@ export default function ProfileScreen() {
             {/* Card header */}
             <div style={{ padding: '14px 16px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 600, color: c.w, marginBottom: 1 }}>
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, color: c.w, marginBottom: 1 }}>
                   Andamento peso
                 </div>
-                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>
-                  Ultimi {Math.min(weights.length, 7)} rilevamenti
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>
+                  Ultimi {Math.min(weights.length, 7)} {Math.min(weights.length, 7) === 1 ? 'rilevamento' : 'rilevamenti'}
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -244,9 +246,9 @@ export default function ProfileScreen() {
                     fontFamily: "'DM Mono', monospace", fontSize: 16, fontWeight: 700,
                     color: parseFloat(delta) <= 0 ? c.lime : c.red,
                   }}>
-                    {parseFloat(delta) <= 0 ? '' : '+'}{delta} <span style={{ fontSize: 10 }}>kg</span>
+                    {parseFloat(delta) <= 0 ? '' : '+'}{delta} <span style={{ fontSize: 12 }}>kg</span>
                   </div>
-                  <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.limeD }}>
+                  <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeD }}>
                     totale {parseFloat(delta) <= 0 ? '↓' : '↑'}
                   </div>
                 </div>
@@ -299,14 +301,14 @@ export default function ProfileScreen() {
                           color: c.w, padding: '10px 0',
                         }}
                       />
-                      <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>kg</span>
+                      <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>kg</span>
                     </div>
                     <motion.div whileTap={{ scale: 0.94 }} onClick={handleSavePeso}
                       style={{
                         background: nuovoPeso ? c.lime : c.bg4,
                         borderRadius: 10, padding: '10px 16px',
                         cursor: nuovoPeso ? 'pointer' : 'default',
-                        fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 700,
+                        fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 700,
                         color: nuovoPeso ? c.ink : c.w40,
                         flexShrink: 0,
                       }}>
@@ -322,8 +324,8 @@ export default function ProfileScreen() {
               <WeightChart data={weights} />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 16px 0' }}>
-              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: c.w40 }}>{weights[0].date} · {firstWeight} kg</span>
-              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: c.lime }}>oggi · {currentWeight} kg</span>
+              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, color: c.w40 }}>{weights.length > 0 ? `${weights[0].date} · ${firstWeight} kg` : '— kg'}</span>
+              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, color: c.lime }}>oggi · {currentWeight} kg</span>
             </div>
 
             {/* Storico toggle */}
@@ -333,8 +335,8 @@ export default function ProfileScreen() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                 padding: '10px 16px 12px', cursor: 'pointer',
               }}>
-              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>
-                {showWeightHistory ? 'Nascondi storico' : `Storico (${weights.length} rilevamenti)`}
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>
+                {showWeightHistory ? 'Nascondi storico' : `Storico (${weights.length} ${weights.length === 1 ? 'rilevamento' : 'rilevamenti'})`}
               </span>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={c.w40} strokeWidth="2.5" strokeLinecap="round">
                 <path d={showWeightHistory ? "M18 15l-6-6-6 6" : "M6 9l6 6 6-6"}/>
@@ -365,21 +367,21 @@ export default function ProfileScreen() {
                               width: 6, height: 6, borderRadius: '50%',
                               background: isFirst ? c.lime : c.w20, flexShrink: 0,
                             }}/>
-                            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: isFirst ? c.w : c.w60 }}>
+                            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: isFirst ? c.w : c.w60 }}>
                               {entry.date}
                             </span>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                             {diff !== null && (
                               <span style={{
-                                fontFamily: "'DM Mono', monospace", fontSize: 12,
+                                fontFamily: "'DM Mono', monospace", fontSize: 14,
                                 color: parseFloat(diff) <= 0 ? c.lime : c.red,
                               }}>
                                 {parseFloat(diff) <= 0 ? '' : '+'}{diff} kg
                               </span>
                             )}
                             <span style={{
-                              fontFamily: "'DM Mono', monospace", fontSize: 12, fontWeight: 600,
+                              fontFamily: "'DM Mono', monospace", fontSize: 14, fontWeight: 600,
                               color: isFirst ? c.w : c.w60,
                             }}>
                               {entry.val} kg
@@ -405,11 +407,11 @@ export default function ProfileScreen() {
             {/* Header */}
             <div style={{ padding: '14px 16px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 600, color: c.w }}>
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, color: c.w }}>
                   Misure corpo
                 </div>
-                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40, marginTop: 1 }}>
-                  Circonferenze in cm · {misureHistory[misureHistory.length - 1].date}
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, marginTop: 1 }}>
+                  Circonferenze in cm · {misureHistory.length > 0 ? misureHistory[misureHistory.length - 1].date : '—'}
                 </div>
               </div>
               <motion.div whileTap={{ scale: 0.9 }}
@@ -422,7 +424,7 @@ export default function ProfileScreen() {
                   cursor: 'pointer',
                 }}>
                 <Pencil size={10} color={editMisure ? c.ink : c.w60} strokeWidth={2} />
-                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 600, color: editMisure ? c.ink : c.w60 }}>
+                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, color: editMisure ? c.ink : c.w60 }}>
                   {editMisure ? 'Annulla' : 'Aggiorna'}
                 </span>
               </motion.div>
@@ -441,12 +443,12 @@ export default function ProfileScreen() {
                     border: editMisure ? `1px solid rgba(234,255,85,0.2)` : `1px solid ${c.w06}`,
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                      <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>
+                      <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>
                         {MISURE_LABELS[key]}
                       </span>
                       {diff !== null && !editMisure && (
                         <span style={{
-                          fontFamily: "'DM Mono', monospace", fontSize: 12,
+                          fontFamily: "'DM Mono', monospace", fontSize: 14,
                           color: diff <= 0 ? c.lime : c.red,
                         }}>
                           {diff <= 0 ? '' : '+'}{diff.toFixed(1)}
@@ -465,14 +467,14 @@ export default function ProfileScreen() {
                             padding: 0,
                           }}
                         />
-                        <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>cm</span>
+                        <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>cm</span>
                       </div>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
                         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 18, fontWeight: 700, color: c.w }}>
                           {curr}
                         </span>
-                        <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>cm</span>
+                        <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>cm</span>
                       </div>
                     )}
                   </div>
@@ -494,7 +496,7 @@ export default function ProfileScreen() {
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       cursor: 'pointer',
                     }}>
-                    <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 700, color: c.ink }}>
+                    <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 700, color: c.ink }}>
                       Salva misure
                     </span>
                   </motion.div>
@@ -510,8 +512,8 @@ export default function ProfileScreen() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                   padding: '10px 16px 12px', cursor: 'pointer',
                 }}>
-                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>
-                  {showMisureHistory ? 'Nascondi storico' : `Storico (${misureHistory.length} rilevamenti)`}
+                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>
+                  {showMisureHistory ? 'Nascondi storico' : `Storico (${misureHistory.length} ${misureHistory.length === 1 ? 'rilevamento' : 'rilevamenti'})`}
                 </span>
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={c.w40} strokeWidth="2.5" strokeLinecap="round">
                   <path d={showMisureHistory ? "M18 15l-6-6-6 6" : "M6 9l6 6 6-6"}/>
@@ -540,11 +542,11 @@ export default function ProfileScreen() {
                         }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                             <div style={{ width: 5, height: 5, borderRadius: '50%', background: isFirst ? c.lime : c.w20 }}/>
-                            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 600, color: isFirst ? c.w : c.w60 }}>
+                            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, color: isFirst ? c.w : c.w60 }}>
                               {entry.date}
                             </span>
                             {isFirst && (
-                              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.limeD, background: c.limeBg, borderRadius: 10, padding: '1px 6px' }}>
+                              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeD, background: c.limeBg, borderRadius: 10, padding: '1px 6px' }}>
                                 attuale
                               </span>
                             )}
@@ -556,14 +558,14 @@ export default function ProfileScreen() {
                               const diff = prevVal !== null ? val - prevVal : null
                               return (
                                 <div key={key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: 44 }}>
-                                  <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40, marginBottom: 2 }}>
+                                  <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, marginBottom: 2 }}>
                                     {MISURE_LABELS[key]}
                                   </span>
-                                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, fontWeight: 700, color: isFirst ? c.w : c.w60 }}>
+                                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, fontWeight: 700, color: isFirst ? c.w : c.w60 }}>
                                     {val}
                                   </span>
                                   {diff !== null && (
-                                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: diff <= 0 ? c.lime : c.red }}>
+                                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, color: diff <= 0 ? c.lime : c.red }}>
                                       {diff <= 0 ? '' : '+'}{diff.toFixed(0)}
                                     </span>
                                   )}
@@ -592,15 +594,15 @@ export default function ProfileScreen() {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
                   <Sparkles size={14} color={c.gold} strokeWidth={1.6} />
-                  <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 700, color: c.gold }}>forma.ai Base</span>
+                  <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 700, color: c.gold }}>forma.ai Base</span>
                 </div>
-                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: 'rgba(201,168,76,0.7)', lineHeight: 1.5 }}>
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: 'rgba(201,168,76,0.7)', lineHeight: 1.5 }}>
                   Trial gratuito · 28 giorni rimanenti
                 </div>
               </div>
               <motion.div whileTap={{ scale: 0.96 }}
                 style={{ background: c.lime, borderRadius: 20, padding: '6px 14px', cursor: 'pointer' }}>
-                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 700, color: c.ink }}>Upgrade</span>
+                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 700, color: c.ink }}>Upgrade</span>
               </motion.div>
             </div>
           </div>
@@ -610,6 +612,7 @@ export default function ProfileScreen() {
         <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 5 }}>
           {settingsItems.map((s) => (
             <motion.div key={s.label} whileTap={{ scale: 0.98 }}
+              onClick={s.action}
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 background: c.bg3, border: `1px solid ${c.w06}`,
@@ -619,7 +622,7 @@ export default function ProfileScreen() {
                 <div style={{ width: 28, height: 28, background: c.bg4, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {s.icon}
                 </div>
-                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 500, color: c.w }}>{s.label}</span>
+                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 500, color: c.w }}>{s.label}</span>
               </div>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={c.w40} strokeWidth="2" strokeLinecap="round">
                 <path d="M9 18l6-6-6-6"/>
@@ -628,16 +631,31 @@ export default function ProfileScreen() {
           ))}
         </div>
 
-        {/* Logout */}
-        <div style={{ padding: '12px 20px 16px' }}>
+        {/* Logout + Admin */}
+        <div style={{ padding: '12px 20px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {user?.email === 'bozzellapellegrino@gmail.com' && (
+            <motion.div whileTap={{ scale: 0.97 }}
+              onClick={() => navigate('/admin')}
+              style={{
+                height: 44, borderRadius: 44,
+                background: 'rgba(234,255,85,0.08)', border: `1px solid rgba(234,255,85,0.2)`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', gap: 8,
+              }}>
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 700, color: c.lime }}>
+                ⚙ Admin Panel
+              </span>
+            </motion.div>
+          )}
           <motion.div whileTap={{ scale: 0.97 }}
+            onClick={async () => { await signOut(); navigate('/login') }}
             style={{
               height: 44, borderRadius: 44,
               background: 'rgba(255,255,255,0.04)', border: `1px solid ${c.w10}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer',
             }}>
-            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 600, color: c.w40 }}>
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, color: c.w40 }}>
               Esci dall'account
             </span>
           </motion.div>
@@ -646,7 +664,6 @@ export default function ProfileScreen() {
         <div style={{ flex: 1 }}/>
       </div>
 
-      <BottomNav />
     </div>
   )
 }

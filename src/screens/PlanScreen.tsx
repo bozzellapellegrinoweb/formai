@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import StatusBar from '../components/ui/StatusBar'
-import BottomNav from '../components/ui/BottomNav'
 import { type GiornoPiano, type Pasto, type EsercizioScheda } from '../lib/mock/plan'
 import { useAppState } from '../lib/appStore'
 import { MealIcon, WorkoutIcon } from '../components/ui/AppIcons'
@@ -39,14 +37,6 @@ const WORKOUT_COLOR: Record<string, string> = {
   riposo_attivo: '#4ade80',
 }
 
-function DynamicIsland() {
-  return (
-    <div style={{
-      position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
-      width: 90, height: 26, background: '#000', borderRadius: 50, zIndex: 30,
-    }} />
-  )
-}
 
 function MacroPill({ label, val, color }: { label: string; val: number; color: string }) {
   return (
@@ -55,8 +45,8 @@ function MacroPill({ label, val, color }: { label: string; val: number; color: s
       background: 'rgba(0,0,0,0.25)', borderRadius: 8, padding: '6px 10px', minWidth: 52,
       border: '1px solid rgba(255,255,255,0.08)',
     }}>
-      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, fontWeight: 600, color }}>{val}g</span>
-      <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>{label}</span>
+      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 15, fontWeight: 600, color }}>{val}g</span>
+      <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>{label}</span>
     </div>
   )
 }
@@ -86,11 +76,11 @@ function MealCard({ pasto, expanded, onToggle }: {
         </div>
         <div style={{ flex: 1, padding: '10px 12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 2 }}>
-            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40, textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>{pasto.tipo}</span>
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>{pasto.tipo}</span>
             {completato && <div style={{ width: 5, height: 5, borderRadius: '50%', background: c.lime }} />}
           </div>
-          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, fontWeight: 700, color: c.w, marginBottom: 3 }}>{pasto.nome}</div>
-          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: c.w40 }}>
+          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 15, fontWeight: 700, color: c.w, marginBottom: 3 }}>{pasto.nome}</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, color: c.w40 }}>
             {pasto.kcal} kcal · P {pasto.macro.p}g · C {pasto.macro.c}g · G {pasto.macro.g}g
           </div>
         </div>
@@ -113,16 +103,16 @@ function MealCard({ pasto, expanded, onToggle }: {
                 background: 'rgba(234,255,85,0.05)', border: '1px solid rgba(234,255,85,0.1)',
                 borderRadius: 12, padding: '12px 14px', marginTop: 10,
               }}>
-                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40, fontWeight: 600, marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Alimenti</div>
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, fontWeight: 600, marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Alimenti</div>
                 {pasto.alimenti.map((a) => (
                   <div key={a} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
                     <div style={{ width: 4, height: 4, borderRadius: '50%', background: c.lime, flexShrink: 0 }} />
-                    <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w60 }}>{a}</span>
+                    <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w60 }}>{a}</span>
                   </div>
                 ))}
                 <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(234,255,85,0.1)' }}>
-                  <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.limeD, fontWeight: 700, marginBottom: 5, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Ricetta</div>
-                  <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w60, lineHeight: 1.7 }}>{pasto.ricetta}</div>
+                  <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeD, fontWeight: 700, marginBottom: 5, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Ricetta</div>
+                  <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w60, lineHeight: 1.7 }}>{pasto.ricetta}</div>
                 </div>
               </div>
             </div>
@@ -144,23 +134,23 @@ function EsercizioRow({ ex, idx }: { ex: EsercizioScheda; idx: number }) {
           background: 'rgba(234,255,85,0.1)', border: '1px solid rgba(234,255,85,0.18)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, fontWeight: 700, color: c.lime }}>{idx + 1}</span>
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, fontWeight: 700, color: c.lime }}>{idx + 1}</span>
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 600, color: c.w }}>{ex.nome}</div>
+          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, color: c.w }}>{ex.nome}</div>
           {ex.muscolo_primario && (
-            <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>{ex.muscolo_primario}</div>
+            <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>{ex.muscolo_primario}</div>
           )}
         </div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 6, padding: '3px 7px', textAlign: 'center' as const }}>
-            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, fontWeight: 700, color: c.w60 }}>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, fontWeight: 700, color: c.w60 }}>
               {ex.serie}×{ex.reps}
             </span>
           </div>
           {ex.rir !== undefined && (
             <div style={{ background: 'rgba(234,255,85,0.08)', borderRadius: 6, padding: '3px 7px' }}>
-              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: c.limeD }}>RIR {ex.rir}</span>
+              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, color: c.limeD }}>RIR {ex.rir}</span>
             </div>
           )}
           <motion.div animate={{ rotate: open ? 90 : 0 }} transition={{ duration: 0.12 }}>
@@ -177,13 +167,13 @@ function EsercizioRow({ ex, idx }: { ex: EsercizioScheda; idx: number }) {
             transition={{ duration: 0.15 }} style={{ overflow: 'hidden' }}>
             <div style={{ paddingBottom: 10, paddingLeft: 32, display: 'flex', flexDirection: 'column', gap: 4 }}>
               <div style={{ display: 'flex', gap: 10 }}>
-                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>Recupero:</span>
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: c.w60 }}>
+                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>Recupero:</span>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, color: c.w60 }}>
                   {ex.recupero_s >= 60 ? `${Math.floor(ex.recupero_s / 60)}′${ex.recupero_s % 60 > 0 ? ex.recupero_s % 60 + '″' : ''}` : `${ex.recupero_s}″`}
                 </span>
               </div>
               {ex.note && (
-                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40, fontStyle: 'italic', lineHeight: 1.5 }}>{ex.note}</span>
+                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, fontStyle: 'italic', lineHeight: 1.5 }}>{ex.note}</span>
               )}
             </div>
           </motion.div>
@@ -204,7 +194,7 @@ function buildWeeks(piano: GiornoPiano[], todayIndex: number) {
   for (let w = 0; w < 4; w++) {
     const days = piano.map((g, i) => {
       const dateOffset = (w * 7) + (i - todayIndex)
-      const d = new Date(2026, 4, 2) // 2 maggio 2026 = oggi (mercoledì, index 3)
+      const d = new Date() // today (dynamic)
       d.setDate(d.getDate() + dateOffset)
       return {
         ...g,
@@ -246,10 +236,10 @@ function ProgrammaView({ piano, todayIndex, onSelectDay }: {
               {wi === 0 && (
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: c.lime }} />
               )}
-              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 700, color: wi === 0 ? c.w : c.w60 }}>
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 700, color: wi === 0 ? c.w : c.w60 }}>
                 {week.label}
               </span>
-              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>
                 {week.days[0].data} {week.days[0].mese} – {week.days[6].data} {week.days[6].mese}
               </span>
             </div>
@@ -274,10 +264,10 @@ function ProgrammaView({ piano, todayIndex, onSelectDay }: {
                     background: isToday ? c.limeBg : 'rgba(255,255,255,0.03)',
                     border: `1px solid ${isToday ? 'rgba(234,255,85,0.2)' : 'transparent'}`,
                   }}>
-                  <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: isToday ? c.limeD : c.w40, textTransform: 'uppercase' as const }}>
+                  <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: isToday ? c.limeD : c.w40, textTransform: 'uppercase' as const }}>
                     {day.sigla}
                   </span>
-                  <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 700, color: isToday ? c.lime : c.w60 }}>
+                  <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 700, color: isToday ? c.lime : c.w60 }}>
                     {day.data}
                   </span>
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: wColor, opacity: day.tipo_allenamento === 'riposo' ? 0.3 : 1 }} />
@@ -307,22 +297,22 @@ function ProgrammaView({ piano, todayIndex, onSelectDay }: {
                         }}>
                         {/* Day */}
                         <div style={{ width: 42, flexShrink: 0 }}>
-                          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40, textTransform: 'uppercase' as const }}>{day.sigla}</div>
-                          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, fontWeight: 700, color: isToday ? c.lime : c.w60 }}>{day.data}</div>
+                          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, textTransform: 'uppercase' as const }}>{day.sigla}</div>
+                          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 15, fontWeight: 700, color: isToday ? c.lime : c.w60 }}>{day.data}</div>
                         </div>
                         {/* Workout dot + type */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
                           <div style={{ width: 8, height: 8, borderRadius: '50%', background: wColor, flexShrink: 0 }}/>
                           <span style={{
-                            fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 600,
+                            fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600,
                             color: day.tipo_allenamento === 'riposo' ? c.w40 : c.w,
                             textTransform: 'capitalize' as const,
                           }}>{day.tipo_allenamento === 'riposo' ? 'Riposo' : day.tipo_allenamento}</span>
                         </div>
                         {/* Kcal */}
                         <div style={{ flexShrink: 0, textAlign: 'right' as const }}>
-                          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, fontWeight: 700, color: c.w60 }}>{day.kcal_totali}</div>
-                          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>kcal</div>
+                          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, fontWeight: 700, color: c.w60 }}>{day.kcal_totali}</div>
+                          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>kcal</div>
                         </div>
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={c.w40} strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0 }}>
                           <path d="M9 18l6-6-6-6"/>
@@ -339,14 +329,14 @@ function ProgrammaView({ piano, todayIndex, onSelectDay }: {
 
       {/* Legenda workout */}
       <div style={{ background: c.bg3, borderRadius: 14, padding: '12px 14px', border: `1px solid ${c.w06}` }}>
-        <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40, fontWeight: 600, marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+        <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, fontWeight: 600, marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
           Legenda allenamenti
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 8 }}>
           {Object.entries(WORKOUT_COLOR).filter(([k]) => k !== 'misto').map(([tipo, col]) => (
             <div key={tipo} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: col }}/>
-              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w60, textTransform: 'capitalize' as const }}>{tipo}</span>
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w60, textTransform: 'capitalize' as const }}>{tipo}</span>
             </div>
           ))}
         </div>
@@ -373,14 +363,17 @@ export default function PlanScreen() {
 
   return (
     <div style={{
-      background: c.bg, height: '100svh',
-      display: 'flex', flexDirection: 'column',
-      maxWidth: 390, margin: '0 auto', position: 'relative',
+      background: c.bg, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
     }}>
-      <DynamicIsland />
-      <StatusBar />
 
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+      <div style={{
+        position: 'absolute',
+        top: 'env(safe-area-inset-top)',
+        left: 0, right: 0, bottom: 0,
+        overflowY: 'scroll',
+        WebkitOverflowScrolling: 'touch',
+        paddingBottom: 'var(--nav-h)',
+      }}>
 
         {/* Header */}
         <div style={{
@@ -403,7 +396,7 @@ export default function PlanScreen() {
                   transition: 'background 0.15s',
                 }}>
                 <span style={{
-                  fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 700,
+                  fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 700,
                   color: view === v ? c.ink : c.w40,
                   textTransform: 'capitalize' as const,
                 }}>{v}</span>
@@ -432,7 +425,7 @@ export default function PlanScreen() {
                         border: i === todayIndex && selectedDay !== i ? `1px solid rgba(234,255,85,0.2)` : '1px solid transparent',
                       }}>
                       <span style={{
-                        fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 600,
+                        fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600,
                         textTransform: 'uppercase' as const,
                         color: selectedDay === i ? c.ink : c.w40,
                       }}>{g.sigla}</span>
@@ -460,7 +453,7 @@ export default function PlanScreen() {
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
                       <div style={{ flex: 1, paddingRight: 12 }}>
                         <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 18, fontWeight: 700, color: c.w, lineHeight: 1.1 }}>{giorno.giorno}</div>
-                        <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 3, lineHeight: 1.5 }}>{giorno.note}</div>
+                        <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.45)', marginTop: 3, lineHeight: 1.5 }}>{giorno.note}</div>
                       </div>
                       <div style={{
                         display: 'flex', alignItems: 'center', gap: 5,
@@ -468,7 +461,7 @@ export default function PlanScreen() {
                         borderRadius: 20, padding: '5px 10px', flexShrink: 0,
                       }}>
                         <WorkoutIcon type={giorno.tipo_allenamento} size={13} color={c.lime} />
-                        <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 600, color: c.lime, textTransform: 'capitalize' as const }}>{giorno.tipo_allenamento}</span>
+                        <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, color: c.lime, textTransform: 'capitalize' as const }}>{giorno.tipo_allenamento}</span>
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -478,7 +471,7 @@ export default function PlanScreen() {
                         border: '1px solid rgba(255,255,255,0.07)',
                       }}>
                         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 18, fontWeight: 700, color: c.w, lineHeight: 1 }}>{giorno.kcal_totali}</span>
-                        <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.40)', marginTop: 3 }}>kcal/giorno</span>
+                        <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.40)', marginTop: 3 }}>kcal/giorno</span>
                       </div>
                       <MacroPill label="Proteine" val={giorno.macro.proteine} color={c.lime} />
                       <MacroPill label="Carb" val={giorno.macro.carboidrati} color={c.gold} />
@@ -492,7 +485,7 @@ export default function PlanScreen() {
               {giorno.esercizi && giorno.esercizi.length > 0 && (
                 <div style={{ padding: '0 18px 16px' }}>
                   <div style={{
-                    fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 700,
+                    fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 700,
                     color: c.w40, marginBottom: 8,
                     textTransform: 'uppercase' as const, letterSpacing: '0.8px',
                   }}>Allenamento</div>
@@ -503,12 +496,12 @@ export default function PlanScreen() {
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                       <div>
-                        <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, fontWeight: 700, color: c.w }}>{giorno.sessione_label}</div>
+                        <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 15, fontWeight: 700, color: c.w }}>{giorno.sessione_label}</div>
                         {giorno.muscoli.length > 0 && (
                           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const, marginTop: 5 }}>
                             {giorno.muscoli.map(m => (
                               <div key={m} style={{ background: 'rgba(234,255,85,0.08)', border: '1px solid rgba(234,255,85,0.15)', borderRadius: 8, padding: '2px 7px' }}>
-                                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.limeD, fontWeight: 600 }}>{m}</span>
+                                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeD, fontWeight: 600 }}>{m}</span>
                               </div>
                             ))}
                           </div>
@@ -516,14 +509,14 @@ export default function PlanScreen() {
                       </div>
                       {giorno.durata_min && (
                         <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 10, padding: '5px 9px', textAlign: 'center' as const, flexShrink: 0, marginLeft: 10 }}>
-                          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, fontWeight: 700, color: c.w }}>{giorno.durata_min}</span>
-                          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>min</div>
+                          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 15, fontWeight: 700, color: c.w }}>{giorno.durata_min}</span>
+                          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>min</div>
                         </div>
                       )}
                     </div>
                     {giorno.note_sessione && (
                       <div style={{
-                        fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40, marginBottom: 10,
+                        fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, marginBottom: 10,
                         padding: '6px 10px', background: 'rgba(255,255,255,0.03)', borderRadius: 8,
                         lineHeight: 1.5,
                       }}>{giorno.note_sessione}</div>
@@ -540,7 +533,7 @@ export default function PlanScreen() {
               {/* Pasti */}
               <div style={{ padding: '0 18px 24px' }}>
                 <div style={{
-                  fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 700,
+                  fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 700,
                   color: c.w40, marginBottom: 8,
                   textTransform: 'uppercase' as const, letterSpacing: '0.8px',
                 }}>Pasti</div>
@@ -565,11 +558,11 @@ export default function PlanScreen() {
                   border: `1px solid ${c.w06}`,
                   display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' as const,
                 }}>
-                  <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40, fontWeight: 600, marginRight: 4 }}>SPLIT:</span>
+                  <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, fontWeight: 600, marginRight: 4 }}>SPLIT:</span>
                   {Object.entries(WORKOUT_COLOR).filter(([k]) => k !== 'misto').map(([tipo, col]) => (
                     <div key={tipo} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <div style={{ width: 7, height: 7, borderRadius: '50%', background: col }}/>
-                      <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w60, textTransform: 'capitalize' as const }}>{tipo}</span>
+                      <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w60, textTransform: 'capitalize' as const }}>{tipo}</span>
                     </div>
                   ))}
                 </div>
@@ -582,7 +575,6 @@ export default function PlanScreen() {
 
       </div>
 
-      <BottomNav />
     </div>
   )
 }

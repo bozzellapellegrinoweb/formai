@@ -9,7 +9,100 @@ export interface AppState {
 }
 
 const STORAGE_KEY = 'forma_ai_state'
+const FREQ_KEY = 'forma_frequenza'
 const CHANGE_EVENT = 'forma_ai_state_change'
+const AI_PLAN_KEY = 'forma_ai_plan_v2'
+const AI_MACROS_KEY = 'forma_ai_macros_v2'
+
+// Giorni di allenamento per frequenza (0=Dom, 1=Lun, ... 6=Sab)
+const WORKOUT_DAYS_BY_FREQ: Record<number, number[]> = {
+  1: [3],
+  2: [2, 4],
+  3: [1, 3, 5],
+  4: [1, 2, 4, 5],
+  5: [1, 2, 3, 4, 5],
+  6: [1, 2, 3, 4, 5, 6],
+  7: [0, 1, 2, 3, 4, 5, 6],
+}
+
+function applyFrequenzaToPiano(piano: GiornoPiano[], frequenza: number): GiornoPiano[] {
+  const workoutDays = WORKOUT_DAYS_BY_FREQ[frequenza] ?? [1, 2, 3, 4, 5]
+  // For 3x we cycle through the first 3 workout templates from mockPiano
+  const workoutTemplates = mockPiano.filter(d =>
+    !['riposo_attivo', 'riposo'].includes(d.tipo_allenamento)
+  )
+  let templateIdx = 0
+  return piano.map((day, idx) => {
+    if (workoutDays.includes(idx)) {
+      // Assign a workout template cyclically
+      const tmpl = workoutTemplates[templateIdx % workoutTemplates.length]
+      templateIdx++
+      return {
+        ...day,
+        tipo_allenamento: tmpl.tipo_allenamento,
+        sessione_label: tmpl.sessione_label,
+        muscoli: tmpl.muscoli,
+        durata_min: tmpl.durata_min,
+        kcal_bonus: tmpl.kcal_bonus,
+        esercizi: tmpl.esercizi,
+        note_sessione: tmpl.note_sessione,
+        kcal_totali: tmpl.kcal_totali,
+        macro: tmpl.macro,
+        pasti: day.pasti, // keep current day's meals
+      }
+    }
+    // Rest day: use Sunday template (index 0)
+    const restTmpl = mockPiano[0]
+    return {
+      ...day,
+      tipo_allenamento: 'riposo_attivo',
+      sessione_label: 'Riposo — Recupero attivo',
+      muscoli: [],
+      durata_min: 30,
+      kcal_bonus: 60,
+      esercizi: [],
+      note_sessione: 'Recupero attivo: stretching leggero, camminata o yoga.',
+      kcal_totali: restTmpl.kcal_totali,
+      macro: restTmpl.macro,
+      pasti: day.pasti,
+    }
+  })
+}
+
+export function setUserFrequenza(frequenza: number) {
+  localStorage.setItem(FREQ_KEY, String(frequenza))
+}
+
+export function saveAIPlan(piano: GiornoPiano[], macros_target: object) {
+  // Add current-week dates to the AI plan
+  const today = new Date()
+  const todayDow = today.getDay()
+  const sunday = new Date(today)
+  sunday.setDate(today.getDate() - todayDow)
+  const pianoWithDates = piano.map((g, i) => {
+    const d = new Date(sunday)
+    d.setDate(sunday.getDate() + i)
+    return { ...g, data: d.getDate() }
+  })
+  localStorage.setItem(AI_PLAN_KEY, JSON.stringify(pianoWithDates))
+  localStorage.setItem(AI_MACROS_KEY, JSON.stringify(macros_target))
+  // Clear old state so next getState() uses fresh AI plan
+  localStorage.removeItem(STORAGE_KEY)
+}
+
+export function getAIPlan(): GiornoPiano[] | null {
+  try {
+    const raw = localStorage.getItem(AI_PLAN_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+
+export function getAIMacros(): { kcal_allenamento: number; kcal_riposo: number; proteine_g: number; carboidrati_allenamento_g: number; grassi_g: number } | null {
+  try {
+    const raw = localStorage.getItem(AI_MACROS_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
 
 function buildPianoWithCurrentDates(): GiornoPiano[] {
   const today = new Date()
@@ -26,8 +119,29 @@ function buildPianoWithCurrentDates(): GiornoPiano[] {
 
 function getInitialState(): AppState {
   const todayIndex = new Date().getDay() // 0=Dom…6=Sab matches piano index
+
+  // Use AI-generated plan if available
+  const aiPlan = getAIPlan()
+  if (aiPlan && aiPlan.length === 7) {
+    // Derive todayMacros from today's AI plan day (keeps Diario in sync with Piano/Home)
+    const today = aiPlan[todayIndex]
+    const aiTodayMacros = today ? {
+      ...mockTodayMacros,
+      kcal_target: today.kcal_totali || mockTodayMacros.kcal_target,
+      proteine: today.macro?.proteine ?? mockTodayMacros.proteine,
+      carboidrati: today.macro?.carboidrati ?? mockTodayMacros.carboidrati,
+      grassi: today.macro?.grassi ?? mockTodayMacros.grassi,
+    } : mockTodayMacros
+    return { piano: aiPlan, todayWorkout: mockTodayWorkout, todayMacros: aiTodayMacros, todayIndex }
+  }
+
+  const basePiano = buildPianoWithCurrentDates()
+  const storedFreq = localStorage.getItem(FREQ_KEY)
+  const piano = storedFreq
+    ? applyFrequenzaToPiano(basePiano, parseInt(storedFreq))
+    : basePiano
   return {
-    piano: buildPianoWithCurrentDates(),
+    piano,
     todayWorkout: mockTodayWorkout,
     todayMacros: mockTodayMacros,
     todayIndex,
