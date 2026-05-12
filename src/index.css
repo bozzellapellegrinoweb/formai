@@ -32,25 +32,43 @@
   box-sizing: border-box;
 }
 
-html, body, #root {
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  /* nav-h = padding-top(6) + items(~46px) + safe-area-bottom */
+  --nav-h: calc(52px + max(10px, env(safe-area-inset-bottom, 10px)));
+}
+
+html {
   height: 100%;
-  margin: 0;
-  padding: 0;
+  /* -webkit-fill-available: fallback per iOS < 15 che non supporta dvh */
+  height: -webkit-fill-available;
+  /* workaround bug iOS17 PWA position:fixed */
+  min-height: calc(100% + env(safe-area-inset-top, 0px));
 }
 
 body {
+  height: 100%;
+  height: -webkit-fill-available;
+  margin: 0;
+  padding: 0;
   background-color: #0e1008;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(234,255,85,0.06) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(234,255,85,0.03) 0%, transparent 60%);
   color: #FFFFFF;
   font-family: 'Poppins', sans-serif;
-  font-size: 12px;
+  font-size: 15px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+  overflow: hidden;
 }
 
 #root {
-  width: 100%;
-  min-height: 100svh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }

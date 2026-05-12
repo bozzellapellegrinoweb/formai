@@ -24,21 +24,27 @@ app.use(express.json())
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-const NUTRI_SYSTEM = `Sei NUTRI, il nutrizionista e coach sportivo AI di forma.ai. Hai accesso a un knowledge base scientifico completo su nutrizione e allenamento, basato su fonti ufficiali italiane (CREA BDA, LARN 2014 SINU) e internazionali (ISSN Position Stands 2017, ACSM).
+function buildNutriSystem(profile) {
+  const nome = profile?.nome || 'utente'
+  const eta = profile?.eta ? `${profile.eta} anni` : 'età n.d.'
+  const peso = profile?.peso_kg ? `${profile.peso_kg} kg` : 'peso n.d.'
+  const altezza = profile?.altezza_cm ? `${profile.altezza_cm} cm` : 'altezza n.d.'
+  const bmi = profile?.peso_kg && profile?.altezza_cm
+    ? (profile.peso_kg / Math.pow(profile.altezza_cm / 100, 2)).toFixed(1)
+    : 'n.d.'
+  const obiettivo = profile?.obiettivo || 'non specificato'
+  const livello = profile?.livello_attivita || 'non specificato'
+  const luogo = profile?.luogo_allenamento || 'non specificato'
+  const frequenza = profile?.frequenza_allenamento ? `${profile.frequenza_allenamento}x/settimana` : 'n.d.'
+  const preferenze = Array.isArray(profile?.preferenze_alimentari) ? profile.preferenze_alimentari.join(', ') : 'nessuna'
+
+  return `Sei NUTRI, il nutrizionista e coach sportivo AI di forma.ai. Hai accesso a un knowledge base scientifico completo su nutrizione e allenamento, basato su fonti ufficiali italiane (CREA BDA, LARN 2014 SINU) e internazionali (ISSN Position Stands 2017, ACSM).
 
 ## PROFILO UTENTE ATTIVO
-- Nome: Marco, 30 anni, 82 kg, 180 cm (BMI 25.3)
-- Obiettivo: Guadagno di massa muscolare — lean bulk
-- Allenamento: Palestra 5×/settimana (intermedio, 1–3 anni)
-- Intolleranze: nessuna
-- Preferenze: cucina italiana, pasti pratici
-
-## SITUAZIONE OGGI (Mercoledì — Gambe)
-- Split: PPL Ibrido (Push A / Pull A / Gambe / Push B / Pull B+Cardio)
-- Allenamento: Gambe — Quadricipiti + Femorali + Glutei + Polpacci + Cardio LISS (65 min, 8 esercizi, streak 7 giorni)
-- Target calorico: 1840 kcal | P: 185g | C: 220g | G: 62g (+200 kcal bonus)
-- Consumato finora: 480 kcal | P: 28g | C: 65g | G: 12g
-- Rimanenti: 1360 kcal | P: 157g | C: 155g | G: 50g
+- Nome: ${nome}, ${eta}, ${peso}, ${altezza} (BMI ${bmi})
+- Obiettivo: ${obiettivo}
+- Allenamento: ${luogo} ${frequenza}, livello ${livello}
+- Preferenze alimentari: ${preferenze}
 
 ## KNOWLEDGE BASE SCIENTIFICO — NUTRIZIONE
 ${NUTRITION_KNOWLEDGE}
@@ -49,7 +55,7 @@ ${WORKOUT_KNOWLEDGE}
 ## ISTRUZIONI COMPORTAMENTALI
 - Rispondi SEMPRE in italiano, tono diretto e motivante
 - Usa i dati del knowledge base per dare risposte precise con numeri reali
-- Personalizza SEMPRE per il profilo di Marco (82kg, obiettivo massa, gambe oggi)
+- Personalizza SEMPRE per il profilo dell'utente attivo
 - Cita le fonti quando dai informazioni tecniche
 - Per questioni mediche/patologiche: suggerisci sempre un medico o dietologo
 - Risposte concise per domande semplici, dettagliate per domande tecniche
@@ -59,6 +65,7 @@ ${WORKOUT_KNOWLEDGE}
 - Quando l'utente chiede di creare o generare una scheda fitness/allenamento, usa generate_workout_schedule — non descriverla solo a parole, GENERALA davvero con tutti i 7 giorni, esercizi, serie, reps, recupero e RIR basati sulla knowledge base scientifica
 - Per generate_workout_schedule: includi SEMPRE tutti i 7 giorni (anche i giorni di riposo), con esercizi dettagliati per ogni sessione attiva. Usa i pattern di movimento del knowledge base, non i gruppi muscolari isolati.
 - Dopo aver usato uno strumento, conferma brevemente cosa hai fatto`
+}
 
 const TOOLS = [
   {
@@ -199,7 +206,7 @@ const TOOLS = [
 ]
 
 app.post('/api/chat', async (req, res) => {
-  const { messages } = req.body
+  const { messages, profile } = req.body
   if (!messages?.length) return res.status(400).json({ error: 'messages required' })
   if (!process.env.ANTHROPIC_API_KEY) {
     return res.status(500).json({ error: 'ANTHROPIC_API_KEY non configurata in .env.local' })
@@ -210,6 +217,8 @@ app.post('/api/chat', async (req, res) => {
     let finalText = ''
 
     // Prima chiamata — può restituire testo o tool_use
+    const NUTRI_SYSTEM = buildNutriSystem(profile)
+
     let response = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,

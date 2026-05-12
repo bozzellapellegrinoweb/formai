@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#141708"/>
+      <stop offset="100%" stop-color="#06080100"/>
+    </linearGradient>
+    <radialGradient id="glow4" cx="44%" cy="52%" r="42%">
+      <stop offset="0%" stop-color="#EAFF55" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#EAFF55" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="round4">
+      <rect width="512" height="512" rx="112"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="#0e1008"/>
+  <rect width="512" height="512" rx="112" fill="url(#bg4)"/>
+
+  <!-- Dot-grid texture — 6x6 grid, fading toward right -->
+  <g clip-path="url(#round4)">
+    <!-- Row 1 -->
+    <circle cx="112" cy="112" r="6" fill="white" opacity="0.12"/>
+    <circle cx="172" cy="112" r="6" fill="white" opacity="0.15"/>
+    <circle cx="232" cy="112" r="6" fill="white" opacity="0.18"/>
+    <circle cx="292" cy="112" r="6" fill="white" opacity="0.12"/>
+    <circle cx="352" cy="112" r="6" fill="white" opacity="0.08"/>
+    <circle cx="412" cy="112" r="6" fill="white" opacity="0.05"/>
+    <!-- Row 2 -->
+    <circle cx="112" cy="172" r="6" fill="white" opacity="0.18"/>
+    <circle cx="172" cy="172" r="6" fill="white" opacity="0.22"/>
+    <circle cx="232" cy="172" r="6" fill="white" opacity="0.28"/>
+    <circle cx="292" cy="172" r="6" fill="white" opacity="0.18"/>
+    <circle cx="352" cy="172" r="6" fill="white" opacity="0.10"/>
+    <circle cx="412" cy="172" r="6" fill="white" opacity="0.05"/>
+    <!-- Row 3 -->
+    <circle cx="112" cy="232" r="6" fill="white" opacity="0.22"/>
+    <circle cx="172" cy="232" r="6" fill="white" opacity="0.28"/>
+    <circle cx="232" cy="232" r="6" fill="white" opacity="0.35"/>
+    <circle cx="292" cy="232" r="6" fill="white" opacity="0.22"/>
+    <circle cx="352" cy="232" r="6" fill="white" opacity="0.12"/>
+    <circle cx="412" cy="232" r="6" fill="white" opacity="0.06"/>
+    <!-- Row 4 -->
+    <circle cx="112" cy="292" r="6" fill="white" opacity="0.18"/>
+    <circle cx="172" cy="292" r="6" fill="white" opacity="0.22"/>
+    <circle cx="232" cy="292" r="6" fill="white" opacity="0.28"/>
+    <circle cx="292" cy="292" r="6" fill="white" opacity="0.18"/>
+    <circle cx="352" cy="292" r="6" fill="white" opacity="0.10"/>
+    <circle cx="412" cy="292" r="6" fill="white" opacity="0.05"/>
+    <!-- Row 5 -->
+    <circle cx="112" cy="352" r="6" fill="white" opacity="0.12"/>
+    <circle cx="172" cy="352" r="6" fill="white" opacity="0.15"/>
+    <circle cx="232" cy="352" r="6" fill="white" opacity="0.18"/>
+    <circle cx="292" cy="352" r="6" fill="white" opacity="0.12"/>
+    <circle cx="352" cy="352" r="6" fill="white" opacity="0.08"/>
+    <circle cx="412" cy="352" r="6" fill="white" opacity="0.04"/>
+    <!-- Row 6 -->
+    <circle cx="112" cy="412" r="6" fill="white" opacity="0.06"/>
+    <circle cx="172" cy="412" r="6" fill="white" opacity="0.08"/>
+    <circle cx="232" cy="412" r="6" fill="white" opacity="0.10"/>
+    <circle cx="292" cy="412" r="6" fill="white" opacity="0.06"/>
+    <circle cx="352" cy="412" r="6" fill="white" opacity="0.04"/>
+    <circle cx="412" cy="412" r="6" fill="white" opacity="0.02"/>
+  </g>
+
+  <!-- Lime glow layer -->
+  <rect width="512" height="512" rx="112" fill="url(#glow4)"/>
+
+  <!-- Lime cluster — 3 big lime dots forming a triangle (top-left area) -->
+  <circle cx="188" cy="188" r="44" fill="#EAFF55" opacity="0.15"/>
+  <circle cx="188" cy="188" r="30" fill="#EAFF55" opacity="0.40"/>
+  <circle cx="188" cy="188" r="18" fill="#EAFF55"/>
+
+  <circle cx="248" cy="248" r="28" fill="#EAFF55" opacity="0.25"/>
+  <circle cx="248" cy="248" r="16" fill="#EAFF55" opacity="0.60"/>
+  <circle cx="248" cy="248" r="8" fill="#EAFF55"/>
+
+  <circle cx="148" cy="258" r="18" fill="#EAFF55" opacity="0.20"/>
+  <circle cx="148" cy="258" r="10" fill="#EAFF55" opacity="0.50"/>
+  <circle cx="148" cy="258" r="5" fill="#EAFF55"/>
+
+  <!-- White highlight on main lime dot -->
+  <circle cx="188" cy="188" r="6" fill="white" opacity="0.50"/>
+</svg>

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#141700"/>
+      <stop offset="100%" stop-color="#060800"/>
+    </linearGradient>
+    <radialGradient id="atm" cx="56%" cy="44%" r="50%">
+      <stop offset="0%" stop-color="#EAFF55" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#EAFF55" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="dg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EAFF55" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#EAFF55" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="gf" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="112" fill="url(#atm)"/>
+
+  <!--
+    ORBIT — two rings like an activity tracker
+    Outer ring: r=188, white, gap at top (gap ±30° from top, so 60° gap)
+      Arc from 300° CW 300° to 240°
+      Start at 300°: 256+188*cos(300°)=256+94=350, 256+188*sin(300°)=256-163=93
+      End at 240°:   256+188*cos(240°)=256-94=162, 256+188*sin(240°)=256-163=93  ← same y, symmetric ✓
+      large-arc=1, sweep=1: M 350 93 A 188 188 0 1 1 162 93
+
+    Inner ring: r=116, lime, gap at bottom (opposite side), 240° arc
+      Gap at bottom ±60°, arc from 240° CW 240° to 120°
+      Wait, let me make the inner ring cover the right side more (where the outer ring is open at top)
+      Inner: full 360° minus the same gap as outer? No, let's offset it.
+
+    Actually: outer white 300° (gap at top 60°) + inner lime 180° on the RIGHT side
+    This creates a "double orbit" look with visual tension between the two.
+
+    Inner r=116, lime, 180° on right side: from 270° (bottom) CW 180° to 90° (top)
+    Start at 270°: 256+116*cos(270°)=256+0=256, 256+116*sin(270°)=256+116=372  (bottom center)
+    End at 90°:    256+116*cos(90°) =256+0=256, 256+116*sin(90°) =256-116=140   (top center)
+    large-arc=1, sweep=1 (but 180° → large-arc=0 and sweep=1 are equivalent):
+    M 256 372 A 116 116 0 1 1 256 140  ← large-arc=1 → this goes the LONG way = 360°. No.
+    180° is exactly half. Use large-arc=0, sweep=1: M 256 372 A 116 116 0 0 1 256 140
+    This gives the RIGHT half (CW from bottom to top = right side) ✓
+  -->
+
+  <!-- Outer ring shadow -->
+  <path d="M 350 93 A 188 188 0 1 1 162 93"
+    stroke="white" stroke-width="86" stroke-linecap="round" fill="none" opacity="0.03"/>
+
+  <!-- Outer ring — white, 300° (gap at top) -->
+  <path d="M 350 93 A 188 188 0 1 1 162 93"
+    stroke="white" stroke-width="50" stroke-linecap="round" fill="none" opacity="0.85"/>
+
+  <!-- Inner ring — lime, 180° (right side, covering the gap of outer) -->
+  <path d="M 256 372 A 116 116 0 0 1 256 140"
+    stroke="#EAFF55" stroke-width="40" stroke-linecap="round" fill="none" opacity="0.88"/>
+
+  <!-- Lime dot at inner top terminus (90°) — top center -->
+  <circle cx="256" cy="140" r="52" fill="url(#dg)"/>
+  <circle cx="256" cy="140" r="26" fill="#EAFF55" filter="url(#gf)"/>
+  <circle cx="256" cy="140" r="9" fill="white" opacity="0.55"/>
+
+  <!-- White dots at outer ring termini — left and right symmetrically -->
+  <circle cx="350" cy="93" r="11" fill="white" opacity="0.18"/>
+  <circle cx="162" cy="93" r="11" fill="white" opacity="0.18"/>
+</svg>

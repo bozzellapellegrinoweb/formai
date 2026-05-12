@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#151800"/>
+      <stop offset="100%" stop-color="#070900"/>
+    </linearGradient>
+    <radialGradient id="atm" cx="65%" cy="30%" r="44%">
+      <stop offset="0%" stop-color="#EAFF55" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#EAFF55" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="dg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EAFF55" stop-opacity="0.72"/>
+      <stop offset="100%" stop-color="#EAFF55" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="gf" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="rc">
+      <rect width="512" height="512" rx="112"/>
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- Diagonal stripe texture -->
+  <g clip-path="url(#rc)" opacity="0.06">
+    <line x1="-60"  y1="300" x2="300" y2="-60"  stroke="white" stroke-width="34"/>
+    <line x1="60"   y1="420" x2="420" y2="60"    stroke="white" stroke-width="34"/>
+    <line x1="180"  y1="540" x2="540" y2="180"   stroke="white" stroke-width="34"/>
+    <line x1="300"  y1="660" x2="660" y2="300"   stroke="white" stroke-width="34"/>
+  </g>
+
+  <!--
+    SWEEP — single 300° arc, gap at bottom-left, strong lime terminus at top-right
+    r=188, center 256,256
+
+    Gap at bottom-left (225° ± 30°, so gap from 195° to 255°)
+    Arc from 255° CW 300° to 195°
+    Start at 255°: 256+188*cos(255°)=256-49=207, 256+188*sin(255°)=256-182=74 — hmm that's very near top
+
+    Let me re-approach: gap at BOTTOM (between 240° and 300°), arc from 300° CW 300° to 240°
+    This is symmetrical and cleaner:
+    Start at 300° (bottom-right): 256+188*cos(300°)=256+94=350, 256+188*sin(300°)=256-163=93
+    End at 240° (bottom-left):    256+188*cos(240°)=256-94=162, 256+188*sin(240°)=256-163=93
+
+    Arc from bottom-right (350,93)→ hmm this seems like the TOPS not bottoms.
+
+    I keep getting confused with SVG coords where Y increases downward.
+    In SVG: 0°=right, 90°=DOWN, 180°=left, 270°=UP
+
+    So:
+    270° in SVG = up = (256, 256-188) = (256, 68)  [TOP]
+    90° in SVG  = down = (256, 256+188) = (256, 444) [BOTTOM]
+    0°          = right = (444, 256) [RIGHT]
+    180°        = left = (68, 256) [LEFT]
+
+    For the "gap at BOTTOM-LEFT" (between 120° and 180° in SVG coords):
+    Arc from 180° CW 300° to 120°
+    Start at 180°: (68, 256) [left]
+    End at 120°: 256+188*cos(120°)=256-94=162, 256+188*sin(120°)=256+163=419 [bottom-left]
+
+    large-arc=1, sweep=1: M 68 256 A 188 188 0 1 1 162 419
+
+    Check: 180° CW 300° → 180°+300°=480°=120° ✓
+
+    The lime dot would be at the START of the arc (180° = left side) or somewhere visually prominent.
+    Actually let's put lime dot at a visually strong position: top-right of the arc trajectory.
+    The arc going from left (180°) CW passes through 270°(top), then 0°(right), then 90°(bottom), ending at 120°(bottom-left).
+    Strongest visual position: 300°-315° (top-right quadrant), 60° from top.
+
+    Let me put lime segment at the START (first 70° from 180° CW = 180°→250°):
+    ... actually let's just put the lime at the visually dominant TOP-RIGHT corner,
+    which the arc passes through around 315°.
+
+    Point at 315° (=top-right): 256+188*cos(315°)=256+133=389, 256+188*sin(315°)=256-133=123
+
+    70° after 315° (end of lime, going CW): 315°+70°=385°=25°
+    At 25°: 256+188*cos(25°)=256+170=426... that's outside the icon. Use 315°-70° before it.
+
+    Let me simplify: lime segment covers top-right 60° of the arc.
+    Arc passes 270°(top) at (256,68) and 315°(top-right) at (389,123).
+    Lime from 270° CW 60° to 330°:
+    Start at 270°: (256, 68)
+    End at 330°: 256+188*cos(330°)=256+163=419, 256+188*sin(330°)=256-94=162
+    M 256 68 A 188 188 0 0 1 419 162
+
+    But our main arc starts at 180°, so the lime overlay sits over part of the main arc. ✓
+  -->
+
+  <!-- Shadow halo -->
+  <path d="M 68 256 A 188 188 0 1 1 162 419"
+    stroke="white" stroke-width="88" stroke-linecap="round" fill="none" opacity="0.03"/>
+
+  <!-- Main arc — white, 300° CW, gap at bottom-left -->
+  <path d="M 68 256 A 188 188 0 1 1 162 419"
+    stroke="white" stroke-width="52" stroke-linecap="round" fill="none" opacity="0.88"/>
+
+  <!-- Lime segment — top 60° of arc (from top 270° CW to 330°) -->
+  <path d="M 256 68 A 188 188 0 0 1 419 162"
+    stroke="#EAFF55" stroke-width="52" stroke-linecap="round" fill="none"/>
+
+  <!-- Glow atmosphere at top-right (lime zone) -->
+  <rect width="512" height="512" rx="112" fill="url(#atm)"/>
+
+  <!-- Lime dot at the end of lime segment (330°, top-right) -->
+  <circle cx="419" cy="162" r="56" fill="url(#dg)"/>
+  <circle cx="419" cy="162" r="28" fill="#EAFF55" filter="url(#gf)"/>
+  <circle cx="419" cy="162" r="10" fill="white" opacity="0.55"/>
+
+  <!-- Dim cap at arc start (left) -->
+  <circle cx="68" cy="256" r="12" fill="white" opacity="0.14"/>
+</svg>

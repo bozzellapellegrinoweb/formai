@@ -271,7 +271,17 @@ export const api = onRequest(
       const kcalTarget = tdee ? (p.obiettivo === 'dimagrimento' ? tdee - 400 : p.obiettivo === 'massa' ? tdee + 300 : tdee) : 2000
       const kcalRiposo = Math.round(kcalTarget * 0.85)
 
-      const systemPrompt = `Sei un nutrizionista e coach sportivo AI di livello olimpionico. Genera un piano alimentare e fitness SETTIMANALE personalizzato al 100% per questo utente, partendo da domenica (indice 0) a sabato (indice 6).
+      const systemPrompt = `Sei un nutrizionista e coach sportivo AI scientifico. Genera un piano alimentare e fitness SETTIMANALE personalizzato per questo utente, partendo da domenica (indice 0) a sabato (indice 6).
+
+LINEE GUIDA SCIENTIFICHE (LARN 2014 / ACSM / Schoenfeld):
+- Proteine: 1.6-2.2 g/kg per ipertrofia, 1.2-1.6 g/kg per mantenimento, 2.2-2.8 g/kg per dimagrimento preservando massa
+- Carboidrati: 3-7 g/kg per atleti; giorni riposo -25%; priorità complessi (avena, riso, pasta integrale, patate)
+- Grassi: 0.8-1.2 g/kg, fonti: olio EVO, avocado, frutta secca, pesce grasso
+- Fibra: 25-35g/die da verdure, legumi, cereali integrali
+- Valori nutrizionali chiave: pollo 100g=165kcal P31g G3.6g; uova 1 grande=70kcal P6g G5g; riso cotto 100g=130kcal C28g; pasta 80g cruda=286kcal C57g P10g; salmone 150g=280kcal P37g G14g; fiocchi avena 50g=185kcal C32g P6.5g
+- Split: 3x=PPL o full body; 4x=upper-lower; 5x=push-pull-legs+upper+lower; 6x=PPL×2
+- Ipertrofia: 3-4 serie, 6-12 reps, 60-90s recupero, RIR 1-2; Forza: 3-5 serie, 3-5 reps, 2-4min recupero
+- Progressione: volume settimanale 10-20 serie/gruppo muscolare; deload ogni 4-6 settimane
 
 PROFILO UTENTE:
 - Sesso: ${p.sesso || 'non specificato'}
@@ -290,22 +300,23 @@ ${p.peso_target_kg ? `- Peso target: ${p.peso_target_kg} kg` : ''}
 - Intolleranze: ${Array.isArray(p.intolleranze) ? p.intolleranze.join(', ') : 'nessuna'}
 - Cibi NON graditi (ESCLUDI SEMPRE): ${p.cibi_non_graditi || 'nessuno specificato'}
 
-CALCOLI METABOLICI:
+CALCOLI METABOLICI PRE-CALCOLATI (usa questi come base):
 - BMR (Mifflin-St Jeor): ~${bmr || 'n.d.'} kcal
 - TDEE stimato: ~${tdee || 'n.d.'} kcal
 - Target kcal giorno allenamento: ${kcalTarget} kcal
 - Target kcal giorno riposo: ${kcalRiposo} kcal
 
 REGOLE ASSOLUTE:
-1. ESCLUDI SEMPRE i cibi non graditi dall'utente — zero eccezioni
-2. Rispetta tutte le preferenze alimentari e intolleranze
-3. Ogni pasto deve avere ingredienti specifici e realistici con grammature (es. "150g petto di pollo, 80g riso basmati")
-4. La ricetta deve essere concisa ma pratica (2-3 frasi)
-5. Split allenamento automatico basato su frequenza e livello
-6. Giorni riposo: proteine mantenute, carboidrati ridotti del 25%
-7. Usa fonti proteiche variate durante la settimana
-8. I pasti devono essere appetibili e fattibili per un italiano medio
-9. Includi colazione, ${p.pasti_al_giorno >= 5 ? 'spuntino mattina, ' : ''}pranzo${p.pasti_al_giorno >= 4 ? ', spuntino pomeriggio' : ''}, cena per ogni giorno`
+1. ESCLUDI SEMPRE i cibi non graditi — zero eccezioni
+2. Ogni giorno ha ESATTAMENTE questi pasti (no duplicati, no extra): colazione${p.pasti_al_giorno >= 5 ? ', spuntino_mattina' : ''}, pranzo${p.pasti_al_giorno >= 4 ? ', spuntino' : ''}, cena — STOP. Non aggiungere altri spuntini.
+3. VARIETÀ OBBLIGATORIA fonti proteiche: pollo / manzo / salmone / tonno / uova / legumi / ricotta / merluzzo — ruota ogni giorno, mai la stessa fonte 2 giorni di fila
+4. VARIETÀ OBBLIGATORIA carboidrati: riso / pasta / patate / pane integrale / avena / farro / quinoa — cambia ogni giorno
+5. Valori nutrizionali accurati (es. pollo 150g=247kcal P46.5g G5.4g; salmone 150g=280kcal P37g G14g)
+6. Grammature realistiche con valori precisi per ogni alimento
+7. Ricetta: 1 frase obbligatoria con metodo cottura (es. "Cuoci il petto di pollo in padella con olio EVO e rosmarino per 15 min.")
+8. Split allenamento: frequenza ${p.frequenza_allenamento || 4}x/settimana, obiettivo ${p.obiettivo_workout || 'ipertrofia'}, luogo ${p.luogo_allenamento || 'palestra'}
+9. Max 5 esercizi per sessione, RIR 1-2, varia gli esercizi tra i giorni (no stesso esercizio 2 volte in 3 giorni)
+10. Giorni riposo: proteine invariate, carboidrati -25%`
 
       const GENERATE_PLAN_TOOL = {
         name: 'create_weekly_plan',
@@ -313,19 +324,6 @@ REGOLE ASSOLUTE:
         input_schema: {
           type: 'object',
           properties: {
-            macros_target: {
-              type: 'object',
-              properties: {
-                kcal_allenamento: { type: 'number' },
-                kcal_riposo: { type: 'number' },
-                proteine_g: { type: 'number' },
-                carboidrati_allenamento_g: { type: 'number' },
-                carboidrati_riposo_g: { type: 'number' },
-                grassi_g: { type: 'number' },
-                note: { type: 'string' },
-              },
-              required: ['kcal_allenamento', 'kcal_riposo', 'proteine_g', 'carboidrati_allenamento_g', 'grassi_g'],
-            },
             giorni: {
               type: 'array',
               minItems: 7, maxItems: 7,
@@ -334,7 +332,7 @@ REGOLE ASSOLUTE:
                 properties: {
                   giorno: { type: 'string' },
                   sigla: { type: 'string' },
-                  tipo_allenamento: { type: 'string', enum: ['push', 'pull', 'legs', 'upper', 'lower', 'full_body', 'riposo_attivo', 'riposo', 'cardio', 'ppll'] },
+                  tipo_allenamento: { type: 'string', enum: ['push', 'pull', 'legs', 'upper', 'lower', 'full_body', 'riposo_attivo', 'riposo', 'cardio'] },
                   sessione_label: { type: 'string' },
                   muscoli: { type: 'array', items: { type: 'string' } },
                   durata_min: { type: 'number' },
@@ -350,12 +348,10 @@ REGOLE ASSOLUTE:
                         recupero_s: { type: 'number' },
                         rir: { type: 'number' },
                         muscolo_primario: { type: 'string' },
-                        note: { type: 'string' },
                       },
-                      required: ['nome', 'serie', 'reps', 'recupero_s'],
+                      required: ['nome', 'serie', 'reps', 'recupero_s', 'rir', 'muscolo_primario'],
                     },
                   },
-                  note_sessione: { type: 'string' },
                   kcal_totali: { type: 'number' },
                   macro: {
                     type: 'object',
@@ -381,36 +377,63 @@ REGOLE ASSOLUTE:
                       required: ['tipo', 'nome', 'alimenti', 'kcal', 'macro', 'ricetta'],
                     },
                   },
-                  note: { type: 'string' },
                 },
-                required: ['giorno', 'sigla', 'tipo_allenamento', 'sessione_label', 'muscoli', 'kcal_totali', 'macro', 'pasti'],
+                required: ['giorno', 'sigla', 'tipo_allenamento', 'sessione_label', 'muscoli', 'durata_min', 'kcal_totali', 'macro', 'pasti'],
               },
             },
+            macros_target: {
+              type: 'object',
+              properties: {
+                kcal_allenamento: { type: 'number' },
+                kcal_riposo: { type: 'number' },
+                proteine_g: { type: 'number' },
+                carboidrati_allenamento_g: { type: 'number' },
+                grassi_g: { type: 'number' },
+              },
+              required: ['kcal_allenamento', 'kcal_riposo', 'proteine_g', 'carboidrati_allenamento_g', 'grassi_g'],
+            },
           },
-          required: ['macros_target', 'giorni'],
+          required: ['giorni', 'macros_target'],
         },
       }
 
       try {
-        const response = await client.messages.create({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 16000,
-          system: systemPrompt,
-          tools: [GENERATE_PLAN_TOOL],
-          tool_choice: { type: 'any' },
-          messages: [{ role: 'user', content: 'Genera il piano settimanale completo e personalizzato per questo utente. Sii creativo con i pasti, vari durante la settimana, e preciso con le grammature degli ingredienti.' }],
-        })
+        // Timeout di 85s — claude-3-5-sonnet veloce e creativo
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 85000)
 
-        const toolUse = response.content.find(b => b.type === 'tool_use' && b.name === 'create_weekly_plan')
+        let response
+        try {
+          response = await client.messages.create({
+            model: 'claude-sonnet-4-5',
+            max_tokens: 8000,
+            system: systemPrompt,
+            tools: [GENERATE_PLAN_TOOL],
+            tool_choice: { type: 'any' },
+            messages: [{ role: 'user', content: `Genera il piano. Regole STRETTE per mantenere output compatto:
+- nome pasto: max 5 parole creative (es. "Bowl quinoa feta olive", "Uova strapazzate funghi")
+- alimenti: max 4 items, formato "Xg cibo" (es. "150g pollo", "80g riso")
+- ricetta: max 8 parole (es. "Grigliato con olio EVO e erbe")
+- sessione_label: max 4 parole (es. "Upper A - Petto")
+- muscoli: max 3 items
+- nome esercizio: max 3 parole
+Creatività nei pasti, varietà proteica ogni giorno.` }],
+          }, { signal: controller.signal })
+        } finally {
+          clearTimeout(timeoutId)
+        }
+
+        const toolUse = response.content?.find(b => b.type === 'tool_use' && b.name === 'create_weekly_plan')
         if (!toolUse) {
-          res.status(500).json({ error: 'Il modello non ha generato il piano strutturato' })
+          console.error('generate-plan: toolUse non trovato, content:', JSON.stringify(response.content).substring(0, 300))
+          res.status(500).json({ error: 'Il modello non ha generato il piano strutturato. Riprova.' })
           return
         }
 
         const giorni = toolUse.input?.giorni
         if (!Array.isArray(giorni) || giorni.length !== 7) {
-          console.error('generate-plan: giorni malformati', JSON.stringify(toolUse.input).substring(0, 200))
-          res.status(500).json({ error: 'Piano generato incompleto (giorni mancanti). Riprova.' })
+          console.error('generate-plan: giorni malformati, length:', giorni?.length, 'keys:', Object.keys(toolUse.input || {}), JSON.stringify(toolUse.input).substring(0, 500))
+          res.status(500).json({ error: `Piano generato incompleto (${giorni?.length ?? 0}/7 giorni). Riprova.` })
           return
         }
 
@@ -420,20 +443,56 @@ REGOLE ASSOLUTE:
         const sunday = new Date(today)
         sunday.setDate(today.getDate() - todayDow)
 
+        const MEAL_ORDER = ['colazione', 'spuntino_mattina', 'pranzo', 'spuntino', 'cena']
         const piano = giorni.map((g, i) => {
+          if (!g || typeof g !== 'object') {
+            console.error('generate-plan: giorno malformato a indice', i)
+            return null
+          }
           const d = new Date(sunday)
           d.setDate(sunday.getDate() + i)
+          const pastiRaw = Array.isArray(g.pasti) ? g.pasti : []
+
+          // Dedup: tieni solo il primo pasto per ogni tipo (evita 10 spuntini)
+          const seenTipi = new Set()
+          const pastiDedup = pastiRaw
+            .filter(p => p && typeof p === 'object' && p.tipo)
+            .filter(p => {
+              if (seenTipi.has(p.tipo)) return false
+              seenTipi.add(p.tipo)
+              return true
+            })
+            .sort((a, b) => MEAL_ORDER.indexOf(a.tipo) - MEAL_ORDER.indexOf(b.tipo))
+            .map(p => ({
+              ...p,
+              completato: false,
+              // Garantisce ricetta sempre presente
+              ricetta: p.ricetta || `Prepara ${p.nome} secondo preferenza.`,
+              alimenti: Array.isArray(p.alimenti) ? p.alimenti : [],
+            }))
+
           return {
             ...g,
             data: d.getDate(),
-            pasti: (g.pasti || []).map(p => ({ ...p, completato: false })),
+            pasti: pastiDedup,
           }
-        })
+        }).filter(Boolean)
 
+        if (piano.length !== 7) {
+          res.status(500).json({ error: 'Piano generato con giorni non validi. Riprova.' })
+          return
+        }
+
+        console.log('generate-plan: successo', piano.length, 'giorni')
         res.json({ ok: true, piano, macros_target: toolUse.input.macros_target })
       } catch (e) {
-        console.error('generate-plan error:', e.message)
-        res.status(500).json({ error: e.message })
+        const isTimeout = e.name === 'AbortError' || e.message?.includes('aborted')
+        console.error('generate-plan error:', e.name, e.message)
+        if (isTimeout) {
+          res.status(504).json({ error: 'Generazione troppo lenta. Riprova — di solito il secondo tentativo è più veloce.' })
+        } else {
+          res.status(500).json({ error: e.message || 'Errore generazione piano' })
+        }
       }
       return
     }

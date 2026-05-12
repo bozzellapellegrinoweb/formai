@@ -27,11 +27,11 @@ export const mockTodayWorkout = {
 
 export const mockTodayMacros = {
   kcal_target: 1840,
-  kcal_consumed: 480,
+  kcal_consumed: 0,
   proteine: 185,
   carboidrati: 220,
   grassi: 62,
-  proteine_consumed: 28,
-  carboidrati_consumed: 65,
-  grassi_consumed: 12,
+  proteine_consumed: 0,
+  carboidrati_consumed: 0,
+  grassi_consumed: 0,
 }

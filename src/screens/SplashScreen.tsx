@@ -1,45 +1,23 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import StatusBar from '../components/ui/StatusBar'
+import { useAuth } from '../lib/auth'
+import { c } from '../design/themes'
 
-const c = {
-  bg:      '#0e1008',
-  lime:    '#EAFF55',
-  limeBg:  'rgba(234,255,85,0.10)',
-  w:       '#ffffff',
-  w40:     'rgba(255,255,255,0.40)',
-  ink:     '#0a0d00',
-}
-
-function DynamicIsland() {
-  return (
-    <div style={{
-      position: 'absolute',
-      top: 12, left: '50%', transform: 'translateX(-50%)',
-      width: 90, height: 26,
-      background: '#000',
-      borderRadius: 50,
-      zIndex: 30,
-    }}/>
-  )
-}
 
 export default function SplashScreen() {
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   return (
     <div style={{
       background: c.bg,
-      height: '100svh',
+      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
       display: 'flex',
       flexDirection: 'column',
-      maxWidth: 390,
-      margin: '0 auto',
+      
+      
       overflow: 'hidden',
-      position: 'relative',
     }}>
-      <DynamicIsland />
-      <StatusBar />
 
       <div style={{
         flex: 1,
@@ -123,7 +101,7 @@ export default function SplashScreen() {
             {/* CTA pill */}
             <motion.button
               whileTap={{ scale: 0.97 }}
-              onClick={() => navigate('/login')}
+              onClick={() => navigate(user ? '/home' : '/login')}
               style={{
                 width: '100%', height: 52,
                 background: c.lime,

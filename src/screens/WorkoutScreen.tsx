@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import StatusBar from '../components/ui/StatusBar'
-import BottomNav from '../components/ui/BottomNav'
 import { exerciseVideoMap, type Exercise } from '../lib/mock/workout'
 import { useAppState } from '../lib/appStore'
 import {
@@ -10,37 +8,8 @@ import {
   Play, Pause, RotateCcw, Check, Bot, Timer,
   Activity, Zap,
 } from 'lucide-react'
+import { c } from '../design/themes'
 
-const c = {
-  bg:      '#0e1008',
-  bg2:     '#151809',
-  bg3:     '#1c1f0d',
-  bg4:     '#252912',
-  lime:    '#EAFF55',
-  limeD:   '#b8cc00',
-  limeBg:  'rgba(234,255,85,0.10)',
-  limeBg2: 'rgba(234,255,85,0.06)',
-  terra:   '#C4714A',
-  gold:    '#C9A84C',
-  w:       '#ffffff',
-  w80:     'rgba(255,255,255,0.80)',
-  w60:     'rgba(255,255,255,0.60)',
-  w40:     'rgba(255,255,255,0.40)',
-  w20:     'rgba(255,255,255,0.20)',
-  w10:     'rgba(255,255,255,0.10)',
-  w06:     'rgba(255,255,255,0.06)',
-  w04:     'rgba(255,255,255,0.04)',
-  ink:     '#0a0d00',
-}
-
-function DynamicIsland() {
-  return (
-    <div style={{
-      position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
-      width: 90, height: 26, background: '#000', borderRadius: 50, zIndex: 30,
-    }}/>
-  )
-}
 
 function WorkoutTypeIcon({ tipo, size = 14, color = c.w40 }: { tipo: string; size?: number; color?: string }) {
   if (tipo === 'riposo') return <Clock size={size} color={color} strokeWidth={1.6} />
@@ -504,6 +473,416 @@ function SessionTimer({ running }: { running: boolean }) {
   )
 }
 
+// ── Active Session Full-Screen ────────────────────────────────
+function ActiveSession({
+  esercizi,
+  sessionLabel,
+  onClose,
+  onComplete,
+}: {
+  esercizi: Exercise[]
+  sessionLabel: string
+  onClose: () => void
+  onComplete: () => void
+}) {
+  const [exIdx, setExIdx] = useState(0)
+  const [serie, setSerie] = useState(1) // current set 1-based
+  const [phase, setPhase] = useState<'exercise' | 'rest' | 'done'>('exercise')
+  const [restSec, setRestSec] = useState(0)
+  const [elapsed, setElapsed] = useState(0)
+  const [totalDone, setTotalDone] = useState(0)
+  const [exitConfirm, setExitConfirm] = useState(false)
+
+  // session timer
+  useEffect(() => {
+    const t = setInterval(() => setElapsed(s => s + 1), 1000)
+    return () => clearInterval(t)
+  }, [])
+
+  // rest countdown
+  useEffect(() => {
+    if (phase !== 'rest') return
+    if (restSec <= 0) { setPhase('exercise'); return }
+    const t = setTimeout(() => setRestSec(s => s - 1), 1000)
+    return () => clearTimeout(t)
+  }, [phase, restSec])
+
+  const ex = esercizi[exIdx]
+  const totalExercises = esercizi.length
+  const mm = String(Math.floor(elapsed / 60)).padStart(2, '0')
+  const ss = String(elapsed % 60).padStart(2, '0')
+  const nextEx = esercizi[exIdx + 1]
+
+  function handleSerieComplete() {
+    setTotalDone(d => d + 1)
+    if (serie < ex.sets) {
+      // more sets for this exercise → rest
+      const r = ex.rest_sec ?? 60
+      setRestSec(r)
+      setSerie(s => s + 1)
+      setPhase('rest')
+    } else if (exIdx < totalExercises - 1) {
+      // next exercise → brief rest
+      const r = ex.rest_sec ?? 60
+      setRestSec(r)
+      setSerie(1)
+      setExIdx(i => i + 1)
+      setPhase('rest')
+    } else {
+      // all done
+      setPhase('done')
+    }
+  }
+
+  function skipRest() {
+    setPhase('exercise')
+    setRestSec(0)
+  }
+
+  const restPct = ex ? (restSec / (ex.rest_sec || 60)) * 100 : 0
+  const R = 70
+  const circ = 2 * Math.PI * R
+
+  // ── DONE SCREEN ──
+  if (phase === 'done') {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
+        style={{
+          position: 'fixed', inset: 0, zIndex: 300,
+          background: c.bg,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          padding: '0 32px',
+        }}
+      >
+        {/* trophy */}
+        <motion.div
+          initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
+          style={{
+            width: 100, height: 100, borderRadius: 50,
+            background: c.lime,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 28,
+          }}
+        >
+          <span style={{ fontSize: 44 }}>🏆</span>
+        </motion.div>
+        <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 26, fontWeight: 800, color: c.w, textAlign: 'center', marginBottom: 6 }}>
+          Sessione completata!
+        </div>
+        <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, textAlign: 'center', marginBottom: 40 }}>
+          {sessionLabel}
+        </div>
+        {/* Stats */}
+        <div style={{ display: 'flex', gap: 12, marginBottom: 48, width: '100%' }}>
+          {[
+            { label: 'Esercizi', value: `${totalExercises}` },
+            { label: 'Serie', value: `${totalDone}` },
+            { label: 'Tempo', value: `${mm}:${ss}` },
+          ].map(stat => (
+            <div key={stat.label} style={{
+              flex: 1, background: c.bg3, borderRadius: 16,
+              border: `1px solid ${c.w06}`, padding: '16px 10px',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 22, fontWeight: 800, color: c.lime }}>{stat.value}</div>
+              <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 11, color: c.w40, marginTop: 2 }}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
+        <motion.div whileTap={{ scale: 0.97 }} onClick={onComplete}
+          style={{
+            width: '100%', height: 56, borderRadius: 56, background: c.lime,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+          }}>
+          <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 15, fontWeight: 700, color: c.ink }}>
+            Chiudi ✓
+          </span>
+        </motion.div>
+      </motion.div>
+    )
+  }
+
+  // ── REST SCREEN ──
+  if (phase === 'rest') {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        style={{
+          position: 'fixed', inset: 0, zIndex: 300,
+          background: c.bg,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          padding: '0 32px',
+        }}
+      >
+        <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, color: c.w40, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 32 }}>
+          Riposo
+        </div>
+        {/* Big circular timer */}
+        <div style={{ position: 'relative', width: 180, height: 180, marginBottom: 36 }}>
+          <svg width={180} height={180} viewBox="0 0 180 180" style={{ transform: 'rotate(-90deg)' }}>
+            <circle cx={90} cy={90} r={R} fill="none" stroke={c.w06} strokeWidth={8} />
+            <circle cx={90} cy={90} r={R} fill="none" stroke={c.lime} strokeWidth={8}
+              strokeDasharray={circ} strokeDashoffset={circ * (1 - restPct / 100)}
+              strokeLinecap="round"
+              style={{ transition: 'stroke-dashoffset 0.9s linear' }}
+            />
+          </svg>
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 52, fontWeight: 700, color: c.w, lineHeight: 1 }}>
+              {restSec}
+            </span>
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40, marginTop: 4 }}>sec</span>
+          </div>
+        </div>
+
+        {/* Next exercise preview */}
+        {ex && (
+          <div style={{
+            background: c.bg3, borderRadius: 16, padding: '14px 18px',
+            border: `1px solid ${c.w06}`, width: '100%', marginBottom: 32,
+            display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: 12,
+              background: c.limeBg2, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Dumbbell size={18} color={c.lime} strokeWidth={1.6} />
+            </div>
+            <div>
+              <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 11, color: c.w40, marginBottom: 2 }}>PROSSIMO</div>
+              <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 15, fontWeight: 700, color: c.w }}>{ex.name}</div>
+              <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>
+                Serie {serie}/{ex.sets} · {ex.reps}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <motion.div whileTap={{ scale: 0.97 }} onClick={skipRest}
+          style={{
+            width: '100%', height: 52, borderRadius: 52,
+            background: c.bg3, border: `1px solid ${c.w10}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+          }}>
+          <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w60 }}>
+            Salta riposo →
+          </span>
+        </motion.div>
+      </motion.div>
+    )
+  }
+
+  // ── EXERCISE SCREEN ──
+  return (
+    <motion.div
+      key={`ex-${exIdx}-${serie}`}
+      initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.25 }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 300,
+        background: c.bg,
+        display: 'flex', flexDirection: 'column',
+      }}
+    >
+      {/* Exit confirmation overlay */}
+      <AnimatePresence>
+        {exitConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            style={{
+              position: 'absolute', inset: 0, zIndex: 10,
+              background: 'rgba(0,0,0,0.80)', backdropFilter: 'blur(6px)',
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center', padding: '0 32px',
+            }}
+          >
+            <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 22, fontWeight: 800, color: c.w, textAlign: 'center', marginBottom: 10 }}>
+              Esci dalla sessione?
+            </div>
+            <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, textAlign: 'center', marginBottom: 36 }}>
+              I progressi di questa sessione andranno persi.
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%' }}>
+              <motion.div whileTap={{ scale: 0.97 }} onClick={onClose}
+                style={{
+                  height: 52, borderRadius: 52,
+                  background: 'rgba(255,77,77,0.18)', border: '1.5px solid rgba(255,100,100,0.35)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                }}>
+                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 15, fontWeight: 700, color: '#ff6b6b' }}>
+                  Abbandona sessione
+                </span>
+              </motion.div>
+              <motion.div whileTap={{ scale: 0.97 }} onClick={() => setExitConfirm(false)}
+                style={{
+                  height: 52, borderRadius: 52,
+                  background: c.lime,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                }}>
+                <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 15, fontWeight: 700, color: c.ink }}>
+                  Continua allenamento
+                </span>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Top bar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: 'calc(env(safe-area-inset-top) + 12px) 20px 12px',
+        flexShrink: 0,
+      }}>
+        <motion.div whileTap={{ scale: 0.9 }} onClick={() => setExitConfirm(true)}
+          style={{
+            width: 44, height: 44, borderRadius: '50%',
+            border: `1.5px solid ${c.w20}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+          }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={c.w60} strokeWidth="2" strokeLinecap="round">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </motion.div>
+
+        {/* Progress dots */}
+        <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+          {esercizi.map((_, i) => (
+            <div key={i} style={{
+              width: i === exIdx ? 20 : 6, height: 6, borderRadius: 3,
+              background: i < exIdx ? c.lime : i === exIdx ? c.lime : c.w10,
+              transition: 'all 0.3s',
+            }} />
+          ))}
+        </div>
+
+        {/* Timer */}
+        <div style={{
+          background: c.limeBg2, borderRadius: 20, padding: '4px 12px',
+          border: `1px solid rgba(234,255,85,0.15)`,
+        }}>
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, fontWeight: 700, color: c.lime }}>
+            {mm}:{ss}
+          </span>
+        </div>
+      </div>
+
+      {/* Exercise number */}
+      <div style={{ padding: '8px 24px 0', flexShrink: 0 }}>
+        <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: c.w40, marginBottom: 4 }}>
+          {String(exIdx + 1).padStart(2, '0')} / {String(totalExercises).padStart(2, '0')}
+        </div>
+        <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 28, fontWeight: 800, color: c.w, lineHeight: 1.1 }}>
+          {ex?.name}
+        </div>
+        {ex?.muscle && (
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 6,
+            background: c.limeBg2, borderRadius: 20, padding: '3px 10px',
+            border: `1px solid rgba(234,255,85,0.15)`,
+          }}>
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: c.lime }} />
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 11, color: c.lime }}>{ex.muscle}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Video/image area */}
+      <div style={{
+        flex: 1, margin: '16px 20px',
+        background: 'linear-gradient(135deg, #1a2a06 0%, #0e1008 100%)',
+        borderRadius: 24, overflow: 'hidden', position: 'relative',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        minHeight: 0,
+      }}>
+        {ex?.video_url ? (
+          ex.video_url.endsWith('.webp') ? (
+            <img src={ex.video_url} alt={ex.name}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <video src={ex.video_url} autoPlay loop muted playsInline
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          )
+        ) : (
+          <div style={{ textAlign: 'center' }}>
+            <Dumbbell size={48} color="rgba(234,255,85,0.2)" strokeWidth={1} />
+          </div>
+        )}
+        {/* Serie badge overlay */}
+        <div style={{
+          position: 'absolute', top: 14, right: 14,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+          borderRadius: 12, padding: '8px 14px',
+        }}>
+          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 11, color: c.w40, textAlign: 'center' }}>SERIE</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 20, fontWeight: 700, color: c.w, textAlign: 'center' }}>
+            {serie}<span style={{ fontSize: 13, color: c.w40 }}>/{ex?.sets}</span>
+          </div>
+        </div>
+        {/* Reps overlay */}
+        <div style={{
+          position: 'absolute', bottom: 14, left: 0, right: 0,
+          display: 'flex', justifyContent: 'center', gap: 10,
+        }}>
+          <div style={{
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+            borderRadius: 20, padding: '6px 16px',
+            display: 'flex', gap: 12,
+          }}>
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, color: c.w }}>
+              {ex?.reps}
+            </span>
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, color: c.w40 }}>·</span>
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, color: c.w40 }}>
+              {ex?.rest_sec}s riposo
+            </span>
+            {ex?.note && <>
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, color: c.w40 }}>·</span>
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, color: c.lime }}>RIR {(ex as any).rir ?? 2}</span>
+            </>}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom CTA */}
+      <div style={{ padding: '0 20px 32px', flexShrink: 0 }}>
+        {nextEx && (
+          <div style={{
+            fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40,
+            textAlign: 'center', marginBottom: 10,
+          }}>
+            Dopo: <span style={{ color: c.w60 }}>{nextEx.name}</span>
+          </div>
+        )}
+        <motion.div whileTap={{ scale: 0.97 }} onClick={handleSerieComplete}
+          style={{
+            height: 58, borderRadius: 58, background: c.lime,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: 10, cursor: 'pointer',
+          }}>
+          <Check size={20} color={c.ink} strokeWidth={2.5} />
+          <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 15, fontWeight: 700, color: c.ink }}>
+            {serie < (ex?.sets ?? 1)
+              ? `Serie ${serie} completata`
+              : exIdx < totalExercises - 1
+                ? 'Esercizio completato →'
+                : 'Ultima serie — Fine!'
+            }
+          </span>
+        </motion.div>
+      </div>
+    </motion.div>
+  )
+}
+
 // ── Main Screen ───────────────────────────────────────────────
 export default function WorkoutScreen() {
   const navigate = useNavigate()
@@ -536,6 +915,7 @@ export default function WorkoutScreen() {
 
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [sessionStarted, setSessionStarted] = useState(false)
+  const [activeSession, setActiveSession] = useState(false)
   const [sessionDone, setSessionDone] = useState(false)
   const [completedSets, setCompletedSets] = useState<Record<string, number>>({})
   const [restTimer, setRestTimer] = useState<{ sec: number } | null>(null)
@@ -550,23 +930,26 @@ export default function WorkoutScreen() {
   }
 
   function handleStart() {
-    setSessionStarted(true)
-    setExpandedId(session.esercizi[0].id)
+    if (session.esercizi.length > 0) {
+      setActiveSession(true)
+    } else {
+      setSessionStarted(true)
+      setExpandedId(session.esercizi[0]?.id)
+    }
   }
 
   function handleComplete() {
     setSessionDone(true)
     setSessionStarted(false)
+    setActiveSession(false)
   }
 
   return (
     <div style={{
-      background: c.bg, height: '100svh',
+      background: c.bg,
+      position: 'fixed', top: 'env(safe-area-inset-top)', left: 0, right: 0, bottom: 0,
       display: 'flex', flexDirection: 'column',
-      maxWidth: 390, margin: '0 auto', position: 'relative',
     }}>
-      <DynamicIsland />
-      <StatusBar />
 
       {/* Header */}
       <div style={{
@@ -602,7 +985,7 @@ export default function WorkoutScreen() {
         )}
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+      <div style={{ flex: 1, overflowY: 'scroll', minHeight: 0, WebkitOverflowScrolling: 'touch', paddingBottom: 'var(--nav-h)' }}>
 
         {/* Weekly schedule strip — from real plan */}
         <div style={{ padding: '0 18px 12px' }}>
@@ -638,11 +1021,14 @@ export default function WorkoutScreen() {
                   {session.label}
                 </div>
                 <div style={{ display: 'flex', gap: 14, marginTop: 6 }}>
-                  {[
-                    { icon: <Clock size={11} color={c.w40} strokeWidth={1.6} />, val: `${session.durata_min} min` },
-                    { icon: <Dumbbell size={11} color={c.w40} strokeWidth={1.6} />, val: `${session.esercizi.length} esercizi` },
-                    { icon: <Flame size={11} color={c.w40} strokeWidth={1.6} />, val: `+${session.kcal_bonus} kcal` },
-                  ].map((s, i) => (
+                  {(session.tipo === 'riposo' || session.tipo === 'riposo_attivo'
+                    ? [{ icon: <Clock size={11} color={c.w40} strokeWidth={1.6} />, val: 'Giornata di recupero' }]
+                    : [
+                        { icon: <Clock size={11} color={c.w40} strokeWidth={1.6} />, val: `${session.durata_min} min` },
+                        { icon: <Dumbbell size={11} color={c.w40} strokeWidth={1.6} />, val: `${session.esercizi.length} esercizi` },
+                        { icon: <Flame size={11} color={c.w40} strokeWidth={1.6} />, val: `+${session.kcal_bonus} kcal` },
+                      ]
+                  ).map((s, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       {s.icon}
                       <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>{s.val}</span>
@@ -714,32 +1100,82 @@ export default function WorkoutScreen() {
           </motion.div>
         )}
 
-        {/* Exercises */}
-        <div style={{ padding: '0 18px 8px' }}>
-          <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 600, color: c.w40, marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
-            Esercizi · {session.esercizi.length}
+        {/* Exercises or rest day card */}
+        {session.esercizi.length > 0 ? (
+          <div style={{ padding: '0 18px 8px' }}>
+            <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, fontWeight: 600, color: c.w40, marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+              Esercizi · {session.esercizi.length}
+            </div>
+            {session.esercizi.map((ex, i) => (
+              <ExerciseCard
+                key={ex.id}
+                ex={ex}
+                index={i}
+                expanded={expandedId === ex.id}
+                sessionStarted={sessionStarted}
+                completedSets={completedSets[ex.id] ?? 0}
+                onToggle={() => setExpandedId(expandedId === ex.id ? null : ex.id)}
+                onSetDone={() => handleSetDone(ex.id)}
+                onRestStart={(sec) => setRestTimer({ sec })}
+              />
+            ))}
           </div>
-          {session.esercizi.map((ex, i) => (
-            <ExerciseCard
-              key={ex.id}
-              ex={ex}
-              index={i}
-              expanded={expandedId === ex.id}
-              sessionStarted={sessionStarted}
-              completedSets={completedSets[ex.id] ?? 0}
-              onToggle={() => setExpandedId(expandedId === ex.id ? null : ex.id)}
-              onSetDone={() => handleSetDone(ex.id)}
-              onRestStart={(sec) => setRestTimer({ sec })}
-            />
-          ))}
-        </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            style={{ margin: '0 18px 16px' }}
+          >
+            {/* Rest day illustration card */}
+            <div style={{
+              background: 'linear-gradient(145deg, #1a2004 0%, #101408 60%, #0e1008 100%)',
+              borderRadius: 20, padding: '28px 24px',
+              border: `1px solid ${c.w06}`,
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              textAlign: 'center' as const,
+            }}>
+              <div style={{ fontSize: 52, marginBottom: 16 }}>😴</div>
+              <div style={{
+                fontFamily: "'Poppins', sans-serif", fontSize: 18, fontWeight: 800,
+                color: c.w, marginBottom: 8, lineHeight: 1.2,
+              }}>
+                Oggi è il tuo giorno di riposo
+              </div>
+              <div style={{
+                fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40,
+                lineHeight: 1.6, maxWidth: 280,
+              }}>
+                Il muscolo cresce durante il recupero, non durante l'allenamento.
+                Sfrutta oggi per rigenerarti.
+              </div>
+
+              {/* Recovery tips */}
+              <div style={{ marginTop: 24, width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {[
+                  { emoji: '💧', text: 'Mantieniti idratato — 2–3 litri d\'acqua' },
+                  { emoji: '🥗', text: 'Privilegia cibi anti-infiammatori' },
+                  { emoji: '😴', text: 'Punta a 7–9 ore di sonno stanotte' },
+                ].map((tip) => (
+                  <div key={tip.text} style={{
+                    background: c.w06, borderRadius: 12, padding: '10px 14px',
+                    display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left' as const,
+                  }}>
+                    <span style={{ fontSize: 16, flexShrink: 0 }}>{tip.emoji}</span>
+                    <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, color: c.w60 }}>{tip.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         <div style={{ height: 16 }} />
       </div>
 
-      {/* Bottom CTA */}
-      {!sessionDone && (
-        <div style={{ padding: '8px 18px 16px', flexShrink: 0 }}>
+      {/* Bottom CTA — hidden on rest days */}
+      {!sessionDone && session.esercizi.length > 0 && (
+        <div style={{ padding: '8px 18px var(--nav-h)', flexShrink: 0 }}>
           {!sessionStarted ? (
             <motion.div whileTap={{ scale: 0.97 }} onClick={handleStart}
               style={{
@@ -789,7 +1225,18 @@ export default function WorkoutScreen() {
         )}
       </AnimatePresence>
 
-      <BottomNav />
+      {/* Active Session full-screen overlay */}
+      <AnimatePresence>
+        {activeSession && session.esercizi.length > 0 && (
+          <ActiveSession
+            esercizi={session.esercizi}
+            sessionLabel={session.label}
+            onClose={() => setActiveSession(false)}
+            onComplete={handleComplete}
+          />
+        )}
+      </AnimatePresence>
+
     </div>
   )
 }

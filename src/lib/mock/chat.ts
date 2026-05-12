@@ -4,6 +4,9 @@ export interface ChatMessage {
   content: string
   time: string
   has_image?: boolean
+  imageUrl?: string
+  analysis?: { descrizione: string; kcal: number; macro: { p: number; c: number; g: number } }
+  date?: string  // ISO date string for day-separator logic
 }
 
 export const mockChatMessages: ChatMessage[] = [

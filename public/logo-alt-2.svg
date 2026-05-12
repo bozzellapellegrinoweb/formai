@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="512" x2="512" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#07090200"/>
+      <stop offset="100%" stop-color="#161900"/>
+    </linearGradient>
+    <radialGradient id="glow2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EAFF55" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#EAFF55" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="round2">
+      <rect width="512" height="512" rx="112"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="#0e1008"/>
+  <rect width="512" height="512" rx="112" fill="url(#bg2)"/>
+  <rect width="512" height="512" rx="112" fill="url(#glow2)"/>
+
+  <!-- Three ascending bars — progress / signal strength -->
+  <!-- Bar 1 (shortest) -->
+  <rect x="112" y="340" width="72" height="140" rx="16" fill="white" opacity="0.30"/>
+  <!-- Bar 2 (medium) -->
+  <rect x="216" y="230" width="72" height="250" rx="16" fill="white" opacity="0.60"/>
+  <!-- Bar 3 (tallest) — lime -->
+  <rect x="320" y="112" width="72" height="368" rx="16" fill="#EAFF55"/>
+
+  <!-- Lime dot accent on bar 3 top -->
+  <circle cx="356" cy="112" r="18" fill="#EAFF55"/>
+  <circle cx="356" cy="112" r="8" fill="white" opacity="0.6"/>
+</svg>

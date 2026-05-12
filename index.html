@@ -3,11 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="forma.ai" />
+    <meta name="theme-color" content="#0e1008" />
     <title>forma.ai</title>
+    <!-- Theme init: runs before React mounts to avoid flash of wrong theme -->
+    <script>
+      (function() {
+        var themes = {
+          notte:      { '--bg':'#0E1008','--bg-card':'#151809','--bg-card2':'#1C1F0D','--bg-input':'#252912','--bg-line':'rgba(255,255,255,0.07)','--sage':'#EAFF55','--on-sage':'#0A0D00','--sage-dim':'#B8CC00','--sage-bg':'rgba(234,255,85,0.10)','--sage-bg2':'rgba(234,255,85,0.06)','--sage-ink':'#EAFF55','--terra':'#C4714A','--terra-bg':'rgba(196,113,74,0.15)','--gold':'#C9A84C','--gold-bg':'rgba(201,168,76,0.12)','--blue':'#7AA7E3','--white':'#FFFFFF','--w85':'rgba(255,255,255,0.85)','--w80':'rgba(255,255,255,0.80)','--w70':'rgba(255,255,255,0.70)','--w60':'rgba(255,255,255,0.60)','--w55':'rgba(255,255,255,0.55)','--w40':'rgba(255,255,255,0.40)','--w25':'rgba(255,255,255,0.25)','--w20':'rgba(255,255,255,0.20)','--w10':'rgba(255,255,255,0.10)','--w06':'rgba(255,255,255,0.06)','--w04':'rgba(255,255,255,0.04)','--w03':'rgba(255,255,255,0.03)' },
+          crepuscolo: { '--bg':'#181A10','--bg-card':'#23261A','--bg-card2':'#2C2F22','--bg-input':'#35392A','--bg-line':'rgba(255,255,255,0.10)','--sage':'#EAFF55','--on-sage':'#14140F','--sage-dim':'#C5DE45','--sage-bg':'rgba(234,255,85,0.13)','--sage-bg2':'rgba(234,255,85,0.08)','--sage-ink':'#EAFF55','--terra':'#D17B52','--terra-bg':'rgba(209,123,82,0.15)','--gold':'#D6B255','--gold-bg':'rgba(214,178,85,0.12)','--blue':'#8AB4E8','--white':'#F7F6F0','--w85':'rgba(247,246,240,0.88)','--w80':'rgba(247,246,240,0.82)','--w70':'rgba(247,246,240,0.72)','--w60':'rgba(247,246,240,0.62)','--w55':'rgba(247,246,240,0.55)','--w40':'rgba(247,246,240,0.40)','--w25':'rgba(247,246,240,0.25)','--w20':'rgba(247,246,240,0.20)','--w10':'rgba(247,246,240,0.12)','--w06':'rgba(247,246,240,0.08)','--w04':'rgba(247,246,240,0.05)','--w03':'rgba(247,246,240,0.04)' },
+          giorno:     { '--bg':'#D8D1B8','--bg-card':'#F1ECD8','--bg-card2':'#CBC2A4','--bg-input':'#C3B99B','--bg-line':'rgba(20,20,15,0.18)','--sage':'#EAFF55','--on-sage':'#14140F','--sage-dim':'#C5DE45','--sage-bg':'rgba(106,118,30,0.12)','--sage-bg2':'rgba(106,118,30,0.08)','--sage-ink':'#4D5C0E','--terra':'#9B5230','--terra-bg':'rgba(155,82,48,0.12)','--gold':'#8E6E1A','--gold-bg':'rgba(142,110,26,0.12)','--blue':'#365FA1','--white':'#14140F','--w85':'rgba(20,20,15,0.85)','--w80':'rgba(20,20,15,0.80)','--w70':'rgba(20,20,15,0.70)','--w60':'rgba(20,20,15,0.60)','--w55':'rgba(20,20,15,0.55)','--w40':'rgba(20,20,15,0.40)','--w25':'rgba(20,20,15,0.20)','--w20':'rgba(20,20,15,0.18)','--w10':'rgba(20,20,15,0.10)','--w06':'rgba(20,20,15,0.06)','--w04':'rgba(20,20,15,0.04)','--w03':'rgba(20,20,15,0.03)' },
+        };
+        var name = localStorage.getItem('forma_theme') || 'notte';
+        var t = themes[name] || themes.notte;
+        var root = document.documentElement;
+        root.setAttribute('data-theme', name);
+        for (var k in t) root.style.setProperty(k, t[k]);
+        document.body.style.backgroundColor = t['--bg'];
+      })();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   </head>
-  <body>
+  <body style="margin:0;background:#080a02;font-family:'Poppins',sans-serif;">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

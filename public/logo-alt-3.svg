@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#141708"/>
+      <stop offset="100%" stop-color="#080a02"/>
+    </linearGradient>
+    <radialGradient id="arcglow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EAFF55" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#EAFF55" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="dotglow3" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EAFF55" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#EAFF55" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg3)"/>
+  <rect width="512" height="512" rx="112" fill="url(#arcglow)"/>
+
+  <!-- Broken arc ring — open at bottom-right, suggesting motion/progress -->
+  <!-- Outer thick ring arc: 220° from top-left, clockwise, gap at bottom-right -->
+  <circle cx="256" cy="248" r="148" stroke="white" stroke-width="52" stroke-opacity="0.15" fill="none"/>
+  <path d="M 256 100
+             A 148 148 0 1 1 357 397"
+        stroke="white" stroke-width="52" stroke-linecap="round" fill="none" opacity="0.90"/>
+
+  <!-- Inner thin ring (lime) — same arc, slightly inset -->
+  <path d="M 256 122
+             A 126 126 0 1 1 343 386"
+        stroke="#EAFF55" stroke-width="10" stroke-linecap="round" fill="none" opacity="0.6"/>
+
+  <!-- Lime dot at the open end of arc -->
+  <circle cx="357" cy="397" r="34" fill="url(#dotglow3)"/>
+  <circle cx="357" cy="397" r="22" fill="#EAFF55"/>
+  <circle cx="357" cy="397" r="7" fill="white" opacity="0.55"/>
+</svg>

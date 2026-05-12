@@ -3,26 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Flame, Sparkles, MessageSquare, Pencil } from '../components/ui/AppIcons'
 import { signOut, useAuth, getProfile } from '../lib/auth'
+import { c, useTheme, THEMES, type ThemeName } from '../design/themes'
 
-const c = {
-  bg:     '#0e1008',
-  bg3:    '#1c1f0d',
-  bg4:    '#252912',
-  lime:   '#EAFF55',
-  limeD:  '#b8cc00',
-  limeBg: 'rgba(234,255,85,0.1)',
-  limeBg2:'rgba(234,255,85,0.06)',
-  gold:   '#C9A84C',
-  goldBg: 'rgba(201,168,76,0.12)',
-  w:      '#ffffff',
-  w60:    'rgba(255,255,255,0.60)',
-  w40:    'rgba(255,255,255,0.40)',
-  w20:    'rgba(255,255,255,0.20)',
-  w10:    'rgba(255,255,255,0.10)',
-  w06:    'rgba(255,255,255,0.06)',
-  ink:    '#0a0d00',
-  red:    '#ff6b6b',
-}
+const red = '#ff6b6b'
 
 type WeightEntry = { val: number; date: string }
 type MisureData = { vita: number; petto: number; bicipite: number; coscia: number; fianchi: number }
@@ -54,11 +37,11 @@ function WeightChart({ data }: { data: WeightEntry[] }) {
     <svg width={chartW} height={chartH} viewBox={`0 0 ${chartW} ${chartH}`} style={{ display: 'block' }}>
       <polyline
         points={polyline}
-        fill="none" stroke={c.lime} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        fill="none" stroke={c.limeInk} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
       />
       {last && <>
-        <circle cx={last.x} cy={last.y} r="4" fill={c.lime}/>
-        <circle cx={last.x} cy={last.y} r="7" fill={c.lime} opacity="0.2"/>
+        <circle cx={last.x} cy={last.y} r="4" fill={c.limeInk}/>
+        <circle cx={last.x} cy={last.y} r="7" fill={c.limeInk} opacity="0.2"/>
       </>}
     </svg>
   )
@@ -104,6 +87,7 @@ function todayLabel() {
 export default function ProfileScreen() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { theme, setTheme } = useTheme()
   const settingsItems = buildSettingsItems(navigate)
   const [profile, setProfile] = useState<Record<string, unknown> | null>(null)
 
@@ -176,11 +160,11 @@ export default function ProfileScreen() {
           <div style={{
             display: 'flex', alignItems: 'center', gap: 5,
             background: c.limeBg, borderRadius: 20, padding: '4px 10px',
-            border: `1px solid rgba(234,255,85,0.18)`,
+            border: `1px solid ${c.limeBg}`,
           }}>
-            <Flame size={13} color={c.lime} strokeWidth={1.6} />
-            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, fontWeight: 700, color: c.lime }}>0</span>
-            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeD }}>giorni</span>
+            <Flame size={13} color={c.limeInk} strokeWidth={1.6} />
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, fontWeight: 700, color: c.limeInk }}>0</span>
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeInk }}>giorni</span>
           </div>
         </div>
 
@@ -200,17 +184,17 @@ export default function ProfileScreen() {
               {(profile?.nome as string) || user?.email?.split('@')[0] || 'Profilo'}
             </div>
             <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, marginTop: 2 }}>
-              Obiettivo: <span style={{ color: c.limeD, fontWeight: 600, textTransform: 'capitalize' }}>
+              Obiettivo: <span style={{ color: c.limeInk, fontWeight: 600, textTransform: 'capitalize' }}>
                 {(profile?.obiettivo as string) || '—'}
               </span> · {(profile?.frequenza_allenamento as number | null) ?? '—'}x/settimana
             </div>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 4,
               marginTop: 5, background: c.limeBg2, borderRadius: 20, padding: '3px 8px',
-              border: `1px solid rgba(234,255,85,0.15)`, cursor: 'pointer',
+              border: `1px solid ${c.limeBg}`, cursor: 'pointer',
             }}>
-              <Pencil size={9} color={c.limeD} strokeWidth={2} />
-              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeD }}>Modifica profilo</span>
+              <Pencil size={9} color={c.limeInk} strokeWidth={2} />
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeInk }}>Modifica profilo</span>
             </div>
           </div>
         </div>
@@ -244,11 +228,11 @@ export default function ProfileScreen() {
                 <div style={{ textAlign: 'right' as const }}>
                   <div style={{
                     fontFamily: "'DM Mono', monospace", fontSize: 16, fontWeight: 700,
-                    color: parseFloat(delta) <= 0 ? c.lime : c.red,
+                    color: parseFloat(delta) <= 0 ? c.limeInk : red,
                   }}>
                     {parseFloat(delta) <= 0 ? '' : '+'}{delta} <span style={{ fontSize: 12 }}>kg</span>
                   </div>
-                  <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeD }}>
+                  <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeInk }}>
                     totale {parseFloat(delta) <= 0 ? '↓' : '↑'}
                   </div>
                 </div>
@@ -259,7 +243,7 @@ export default function ProfileScreen() {
                   style={{
                     width: 32, height: 32, borderRadius: '50%',
                     background: showPesoInput ? c.lime : c.bg4,
-                    border: `1px solid ${showPesoInput ? c.lime : 'rgba(255,255,255,0.14)'}`,
+                    border: `1px solid ${showPesoInput ? c.lime : c.bgLine}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     cursor: 'pointer', flexShrink: 0,
                   }}>
@@ -284,7 +268,7 @@ export default function ProfileScreen() {
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '0 16px 12px' }}>
                     <div style={{
                       flex: 1, display: 'flex', alignItems: 'center',
-                      background: c.bg4, borderRadius: 10, border: `1px solid rgba(234,255,85,0.25)`,
+                      background: c.bg4, borderRadius: 10, border: `1px solid ${c.limeBg}`,
                       padding: '0 12px',
                     }}>
                       <input
@@ -325,7 +309,7 @@ export default function ProfileScreen() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 16px 0' }}>
               <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, color: c.w40 }}>{weights.length > 0 ? `${weights[0].date} · ${firstWeight} kg` : '— kg'}</span>
-              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, color: c.lime }}>oggi · {currentWeight} kg</span>
+              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, color: c.limeInk }}>oggi · {currentWeight} kg</span>
             </div>
 
             {/* Storico toggle */}
@@ -365,7 +349,7 @@ export default function ProfileScreen() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <div style={{
                               width: 6, height: 6, borderRadius: '50%',
-                              background: isFirst ? c.lime : c.w20, flexShrink: 0,
+                              background: isFirst ? c.limeInk : c.w20, flexShrink: 0,
                             }}/>
                             <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: isFirst ? c.w : c.w60 }}>
                               {entry.date}
@@ -375,7 +359,7 @@ export default function ProfileScreen() {
                             {diff !== null && (
                               <span style={{
                                 fontFamily: "'DM Mono', monospace", fontSize: 14,
-                                color: parseFloat(diff) <= 0 ? c.lime : c.red,
+                                color: parseFloat(diff) <= 0 ? c.limeInk : red,
                               }}>
                                 {parseFloat(diff) <= 0 ? '' : '+'}{diff} kg
                               </span>
@@ -420,7 +404,7 @@ export default function ProfileScreen() {
                   display: 'flex', alignItems: 'center', gap: 5,
                   background: editMisure ? c.lime : c.bg4,
                   borderRadius: 20, padding: '5px 12px',
-                  border: `1px solid ${editMisure ? c.lime : 'rgba(255,255,255,0.1)'}`,
+                  border: `1px solid ${editMisure ? c.lime : c.w10}`,
                   cursor: 'pointer',
                 }}>
                 <Pencil size={10} color={editMisure ? c.ink : c.w60} strokeWidth={2} />
@@ -440,7 +424,7 @@ export default function ProfileScreen() {
                   <div key={key} style={{
                     width: 'calc(50% - 4px)',
                     background: c.bg4, borderRadius: 10, padding: '10px 12px',
-                    border: editMisure ? `1px solid rgba(234,255,85,0.2)` : `1px solid ${c.w06}`,
+                    border: editMisure ? `1px solid ${c.limeBg}` : `1px solid ${c.w06}`,
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                       <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>
@@ -449,7 +433,7 @@ export default function ProfileScreen() {
                       {diff !== null && !editMisure && (
                         <span style={{
                           fontFamily: "'DM Mono', monospace", fontSize: 14,
-                          color: diff <= 0 ? c.lime : c.red,
+                          color: diff <= 0 ? c.limeInk : red,
                         }}>
                           {diff <= 0 ? '' : '+'}{diff.toFixed(1)}
                         </span>
@@ -463,7 +447,7 @@ export default function ProfileScreen() {
                           onChange={e => setMisureDraft(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
                           style={{
                             width: '60px', background: 'transparent', border: 'none', outline: 'none',
-                            fontFamily: "'DM Mono', monospace", fontSize: 18, fontWeight: 700, color: c.lime,
+                            fontFamily: "'DM Mono', monospace", fontSize: 18, fontWeight: 700, color: c.limeInk,
                             padding: 0,
                           }}
                         />
@@ -541,12 +525,12 @@ export default function ProfileScreen() {
                           borderBottom: !isFirst && i < arr.length - 1 ? `1px solid ${c.w06}` : 'none',
                         }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                            <div style={{ width: 5, height: 5, borderRadius: '50%', background: isFirst ? c.lime : c.w20 }}/>
+                            <div style={{ width: 5, height: 5, borderRadius: '50%', background: isFirst ? c.limeInk : c.w20 }}/>
                             <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, color: isFirst ? c.w : c.w60 }}>
                               {entry.date}
                             </span>
                             {isFirst && (
-                              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeD, background: c.limeBg, borderRadius: 10, padding: '1px 6px' }}>
+                              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.limeInk, background: c.limeBg, borderRadius: 10, padding: '1px 6px' }}>
                                 attuale
                               </span>
                             )}
@@ -565,7 +549,7 @@ export default function ProfileScreen() {
                                     {val}
                                   </span>
                                   {diff !== null && (
-                                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, color: diff <= 0 ? c.lime : c.red }}>
+                                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, color: diff <= 0 ? c.limeInk : red }}>
                                       {diff <= 0 ? '' : '+'}{diff.toFixed(0)}
                                     </span>
                                   )}
@@ -608,6 +592,51 @@ export default function ProfileScreen() {
           </div>
         </div>
 
+        {/* Theme switcher */}
+        <div style={{ margin: '0 20px 12px' }}>
+          <div style={{
+            background: c.bg3, borderRadius: 16,
+            border: `1px solid ${c.w06}`,
+            padding: '14px 16px',
+          }}>
+            <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, color: c.w, marginBottom: 10 }}>
+              Tema
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {(Object.keys(THEMES) as ThemeName[]).map((name) => {
+                const t = THEMES[name]
+                const active = theme === name
+                return (
+                  <motion.div
+                    key={name}
+                    whileTap={{ scale: 0.94 }}
+                    onClick={() => setTheme(name)}
+                    style={{
+                      flex: 1, borderRadius: 12, padding: '10px 8px',
+                      background: active ? c.limeBg : c.bg4,
+                      border: `1.5px solid ${active ? c.limeInk : c.w10}`,
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                      cursor: 'pointer',
+                    }}>
+                    <div style={{
+                      width: 28, height: 28, borderRadius: 8,
+                      background: t.bg,
+                      border: `2px solid ${t.sage}`,
+                      flexShrink: 0,
+                    }} />
+                    <span style={{
+                      fontFamily: "'Poppins', sans-serif", fontSize: 11, fontWeight: active ? 700 : 500,
+                      color: active ? c.limeInk : c.w40,
+                    }}>
+                      {t.name}
+                    </span>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+
         {/* Settings list */}
         <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 5 }}>
           {settingsItems.map((s) => (
@@ -638,11 +667,11 @@ export default function ProfileScreen() {
               onClick={() => navigate('/admin')}
               style={{
                 height: 44, borderRadius: 44,
-                background: 'rgba(234,255,85,0.08)', border: `1px solid rgba(234,255,85,0.2)`,
+                background: c.limeBg2, border: `1px solid ${c.limeBg}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', gap: 8,
               }}>
-              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 700, color: c.lime }}>
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 700, color: c.limeInk }}>
                 ⚙ Admin Panel
               </span>
             </motion.div>

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#151800"/>
+      <stop offset="100%" stop-color="#070900"/>
+    </linearGradient>
+    <radialGradient id="atm" cx="72%" cy="22%" r="46%">
+      <stop offset="0%" stop-color="#EAFF55" stop-opacity="0.26"/>
+      <stop offset="100%" stop-color="#EAFF55" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="dg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EAFF55" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#EAFF55" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="gf" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="15" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="rc">
+      <rect width="512" height="512" rx="112"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!--
+    ARC — 270°, gap at top-left, r=192, center 256,256
+    Arc from 270° (top) CW 270° ending at 180° (left)
+    Start: (256, 64) [top]
+    End:   (64, 256) [left]
+    M 256 64 A 192 192 0 1 1 64 256
+  -->
+
+  <!-- Arc shadow halo -->
+  <path d="M 256 64 A 192 192 0 1 1 64 256"
+    stroke="white" stroke-width="82" stroke-linecap="round" fill="none" opacity="0.035"/>
+
+  <!-- Main arc — white 270° -->
+  <path d="M 256 64 A 192 192 0 1 1 64 256"
+    stroke="white" stroke-width="44" stroke-linecap="round" fill="none" opacity="0.82"/>
+
+  <!--
+    Lime segment — top 60° of arc (from 270° CW to 330°)
+    At 330°: 256+192*cos(330°)=256+166=422, 256+192*sin(330°)=256-96=160
+    M 256 64 A 192 192 0 0 1 422 160
+  -->
+  <path d="M 256 64 A 192 192 0 0 1 422 160"
+    stroke="#EAFF55" stroke-width="44" stroke-linecap="round" fill="none"/>
+
+  <!-- Glow atmosphere (top-right) -->
+  <rect width="512" height="512" rx="112" fill="url(#atm)"/>
+
+  <!--
+    F — 85% scale, centered at 256,256
+    Reference F center: x≈239, y≈258
+
+    Vertical bar: x=153–218, y=128–384  (w=65, h=256, rx=16)
+    Top bar:      x=153–359, y=128–193  (w=206, h=65, rx=16)
+    Mid bar:      x=153–316, y=225–283  (w=163, h=58, rx=14)
+  -->
+
+  <!-- F — 62% scale, centrata, elegante -->
+  <g opacity="0.82">
+    <rect x="183" y="163" width="47" height="186" rx="12" fill="white"/>
+    <rect x="183" y="163" width="150" height="47" rx="12" fill="white"/>
+    <rect x="183" y="231" width="119" height="42" rx="10" fill="white"/>
+  </g>
+
+  <!-- Lime dot at arc terminus (330°) = (422, 160) -->
+  <circle cx="422" cy="160" r="54" fill="url(#dg)"/>
+  <circle cx="422" cy="160" r="27" fill="#EAFF55" filter="url(#gf)"/>
+  <circle cx="422" cy="160" r="10" fill="white" opacity="0.55"/>
+
+  <!-- Dim end cap at arc left terminus -->
+  <circle cx="64" cy="256" r="11" fill="white" opacity="0.14"/>
+</svg>

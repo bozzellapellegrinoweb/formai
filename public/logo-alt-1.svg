@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#161900"/>
+      <stop offset="100%" stop-color="#080a02"/>
+    </linearGradient>
+    <linearGradient id="stripe1" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#EAFF55" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#EAFF55" stop-opacity="0.12"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="68%" cy="72%" r="40%">
+      <stop offset="0%" stop-color="#EAFF55" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#EAFF55" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="round1">
+      <rect width="512" height="512" rx="112"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg1)"/>
+
+  <!-- Diagonal stripe texture -->
+  <g clip-path="url(#round1)" opacity="0.18">
+    <line x1="-60" y1="340" x2="340" y2="-60" stroke="white" stroke-width="38"/>
+    <line x1="40" y1="440" x2="440" y2="40" stroke="white" stroke-width="38"/>
+    <line x1="140" y1="540" x2="540" y2="140" stroke="white" stroke-width="38"/>
+    <line x1="240" y1="640" x2="640" y2="240" stroke="white" stroke-width="38"/>
+  </g>
+
+  <!-- Lime glow -->
+  <rect width="512" height="512" rx="112" fill="url(#glow1)"/>
+
+  <!-- Bold velocity slash — two chevron shapes -->
+  <polygon points="140,380 210,132 290,132 345,380 275,380 248,270 218,380" fill="white" opacity="0.92"/>
+
+  <!-- Lime accent bar (underline of slash) -->
+  <rect x="140" y="380" width="205" height="32" rx="10" fill="#EAFF55"/>
+</svg>

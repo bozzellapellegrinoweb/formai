@@ -1,0 +1,11 @@
+{
+  "name": "forma-ai-functions",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": { "node": "20" },
+  "main": "index.mjs",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.92.0",
+    "firebase-functions": "^6.3.2"
+  }
+}
