@@ -252,9 +252,67 @@ export const api = onRequest(
       return
     }
 
+    // ── analyze-diet ──────────────────────────────────────────────────────
+    if (req.method === 'POST' && path === '/analyze-diet') {
+      const { imageBase64, mediaType, profile } = req.body
+      const apiKey = anthropicKey.value()
+      if (!apiKey) { res.status(500).json({ error: 'ANTHROPIC_API_KEY non configurata' }); return }
+      if (!imageBase64 || !mediaType) { res.status(400).json({ error: 'imageBase64 e mediaType richiesti' }); return }
+      const client = new Anthropic({ apiKey })
+
+      const p = profile || {}
+      const systemPrompt = `Sei NUTRI, il nutrizionista AI di forma.ai. Parli in prima persona come un professionista che ha davanti a sé il paziente.
+Analizza la dieta/piano alimentare caricato dall'utente con occhio clinico e tono diretto ma empatico.
+Il tuo output è una consulenza vera — non un elenco di bullet points, ma un testo fluente che suona come una conversazione con un nutrizionista esperto.
+Rispondi SEMPRE in italiano.`
+
+      const userPrompt = `Questo è il profilo dell'utente:
+- Obiettivo: ${p.obiettivo || 'non specificato'}
+- Sesso: ${p.sesso || 'n.d.'}, Età: ${p.eta || 'n.d.'} anni, Peso: ${p.peso_kg || 'n.d.'} kg
+- Frequenza allenamento: ${p.frequenza_allenamento || 'n.d.'} sessioni/settimana
+- Luogo: ${p.luogo_allenamento || 'palestra'}, Livello: ${p.livello_attivita || 'intermedio'}
+- Obiettivo workout: ${p.obiettivo_workout || 'non specificato'}
+- Preferenze: ${Array.isArray(p.preferenze_alimentari) ? p.preferenze_alimentari.join(', ') : 'nessuna'}
+- Intolleranze: ${Array.isArray(p.intolleranze) ? p.intolleranze.join(', ') : 'nessuna'}
+
+Analizza la sua vecchia dieta/piano alimentare caricato nell'immagine.
+Poi rispondi con un JSON in questo formato esatto (nessun testo fuori dal JSON):
+{
+  "titolo": "stringa breve tipo 'Dieta analizzata — ecco cosa ho trovato'",
+  "consulenza": "testo fluente 3-5 frasi, tono diretto e professionale come un nutrizionista che parla al paziente. Commenta cosa va bene, cosa manca o è sbagliato rispetto al profilo, e un riferimento scientifico naturale (es. 'secondo le linee guida ISSN 2017...'). NO elenchi puntati qui.",
+  "punti_critici": ["max 3 punti brevi, i problemi principali da correggere"],
+  "punti_positivi": ["max 2 punti brevi, cosa funziona già"],
+  "macro_stimati": { "kcal": 0, "proteine_g": 0, "carboidrati_g": 0, "grassi_g": 0 },
+  "integrata_nel_piano": true
+}`
+
+      try {
+        const response = await client.messages.create({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1200,
+          system: systemPrompt,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: mediaType, data: imageBase64 } },
+              { type: 'text', text: userPrompt },
+            ],
+          }],
+        })
+        const raw = response.content[0]?.text || '{}'
+        const jsonMatch = raw.match(/\{[\s\S]*\}/)
+        if (!jsonMatch) throw new Error('Risposta non valida da Claude')
+        const result = JSON.parse(jsonMatch[0])
+        res.json({ ok: true, result })
+      } catch (e) {
+        res.status(500).json({ error: e.message })
+      }
+      return
+    }
+
     // ── generate-plan ─────────────────────────────────────────────────────
     if (req.method === 'POST' && path === '/generate-plan') {
-      const { profile } = req.body
+      const { profile, dieta_analisi } = req.body
       if (!profile) { res.status(400).json({ error: 'profile required' }); return }
       const apiKey = anthropicKey.value()
       if (!apiKey) { res.status(500).json({ error: 'ANTHROPIC_API_KEY non configurata' }); return }
@@ -316,7 +374,11 @@ REGOLE ASSOLUTE:
 7. Ricetta: 1 frase obbligatoria con metodo cottura (es. "Cuoci il petto di pollo in padella con olio EVO e rosmarino per 15 min.")
 8. Split allenamento: frequenza ${p.frequenza_allenamento || 4}x/settimana, obiettivo ${p.obiettivo_workout || 'ipertrofia'}, luogo ${p.luogo_allenamento || 'palestra'}
 9. Max 5 esercizi per sessione, RIR 1-2, varia gli esercizi tra i giorni (no stesso esercizio 2 volte in 3 giorni)
-10. Giorni riposo: proteine invariate, carboidrati -25%`
+10. Giorni riposo: proteine invariate, carboidrati -25%
+${dieta_analisi ? `
+ANALISI VECCHIA DIETA DELL'UTENTE (usa come contesto per migliorare il piano):
+${dieta_analisi}
+Mantieni i pattern positivi della vecchia dieta dove applicabile. Correggi i problemi critici identificati.` : ''}`
 
       const GENERATE_PLAN_TOOL = {
         name: 'create_weekly_plan',

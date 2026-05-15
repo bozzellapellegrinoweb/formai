@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { Target, Ruler, Dumbbell, Utensils, Check, Flame, HeartPulse, Leaf, Wheat, Milk, Activity, Home as HomeIcon, FlaskConical, Upload, AlertCircle, XCircle } from 'lucide-react'
+import { Target, Ruler, Dumbbell, Utensils, Check, Flame, HeartPulse, Leaf, Wheat, Milk, Activity, Home as HomeIcon, FlaskConical, Upload, AlertCircle, XCircle, Sparkles, TrendingUp, TrendingDown } from 'lucide-react'
 import { useAuth, saveOnboarding, savePianoAI } from '../lib/auth'
 import { setUserFrequenza, saveAIPlan } from '../lib/appStore'
 import type { GiornoPiano } from '../lib/mock/plan'
 import { c } from '../design/themes'
 
-const TOTAL_STEPS = 8
+const TOTAL_STEPS = 9
 
 // ── Shared UI components ─────────────────────────────────────────────────────
 
@@ -557,8 +557,199 @@ function StepAnalisiSangue({ file, onChange }: { file: File | null; onChange: (f
   )
 }
 
-// ── STEP 8: Generazione piano ─────────────────────────────────────────────────
-const GENERATION_PHASES = [
+// ── STEP 8: Vecchia dieta ─────────────────────────────────────────────────────
+type DietAnalisi = {
+  titolo: string
+  consulenza: string
+  punti_critici: string[]
+  punti_positivi: string[]
+  macro_stimati: { kcal: number; proteine_g: number; carboidrati_g: number; grassi_g: number }
+}
+
+function StepVecchiaDieta({
+  file, onChange, analisi, isAnalyzing, onAnalyze, error,
+}: {
+  file: File | null
+  onChange: (f: File | null) => void
+  analisi: DietAnalisi | null
+  isAnalyzing: boolean
+  onAnalyze: () => void
+  error: string | null
+}) {
+  return (
+    <div>
+      <IconBox icon={<Sparkles size={20} color={c.lime} strokeWidth={1.6} />} />
+      <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 20, fontWeight: 700, color: c.w, marginBottom: 6 }}>
+        Hai già una dieta?
+      </div>
+      <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, marginBottom: 20, lineHeight: 1.6 }}>
+        Opzionale — carica il tuo piano alimentare attuale e NUTRI lo analizzerà per costruire qualcosa di meglio, su misura per te.
+      </div>
+
+      {/* Upload area */}
+      {!analisi && (
+        <label style={{ display: 'block', cursor: 'pointer', marginBottom: 16 }}>
+          <input type="file" accept="image/*,application/pdf" style={{ display: 'none' }}
+            onChange={e => onChange(e.target.files?.[0] ?? null)} />
+          <div style={{
+            borderRadius: 14, padding: '20px 16px',
+            border: `2px dashed ${file ? c.lime : 'rgba(255,255,255,0.14)'}`,
+            background: file ? c.limeBg2 : 'transparent',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, transition: 'all 0.2s',
+          }}>
+            {file ? (
+              <>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: c.lime, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Check size={18} color={c.ink} strokeWidth={2.5} />
+                </div>
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, color: c.limeInk }}>{file.name}</div>
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, color: c.w40 }}>Tocca per cambiare</div>
+              </>
+            ) : (
+              <>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: c.bg4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Upload size={16} color={c.w40} strokeWidth={1.8} />
+                </div>
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, color: c.w60 }}>Foto o PDF della tua dieta</div>
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, color: c.w40 }}>JPG, PNG o PDF · Max 10 MB</div>
+              </>
+            )}
+          </div>
+        </label>
+      )}
+
+      {/* Analyze button — visible after upload, before analysis */}
+      {file && !analisi && (
+        <motion.div whileTap={{ scale: 0.97 }} onClick={onAnalyze}
+          style={{
+            height: 52, borderRadius: 52,
+            background: isAnalyzing ? c.bg3 : c.lime,
+            border: isAnalyzing ? `1px solid ${c.bgLine}` : 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: 10, cursor: isAnalyzing ? 'default' : 'pointer',
+            marginBottom: 8,
+          }}>
+          {isAnalyzing ? (
+            <>
+              <div style={{
+                width: 16, height: 16, borderRadius: '50%',
+                border: `2px solid ${c.w20}`, borderTopColor: c.lime,
+                animation: 'spin 0.8s linear infinite',
+              }} />
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, color: c.w40 }}>
+                NUTRI sta analizzando...
+              </span>
+            </>
+          ) : (
+            <>
+              <Sparkles size={16} color={c.ink} strokeWidth={2} />
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 700, color: c.ink }}>
+                Analizza la mia dieta
+              </span>
+            </>
+          )}
+        </motion.div>
+      )}
+
+      {error && (
+        <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, color: '#ff6b6b', marginTop: 8 }}>{error}</div>
+      )}
+
+      {/* Consultation result */}
+      {analisi && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+          {/* Header */}
+          <div style={{
+            background: c.limeBg2, border: `1px solid ${c.limeBg}`,
+            borderRadius: '14px 14px 0 0', padding: '12px 14px',
+            display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            <Sparkles size={14} color={c.limeInk} strokeWidth={2} />
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, fontWeight: 700, color: c.limeInk }}>
+              {analisi.titolo}
+            </span>
+          </div>
+
+          {/* Consulenza text */}
+          <div style={{
+            background: c.bg2, border: `1px solid ${c.bgLine}`, borderTop: 'none',
+            padding: '14px',
+          }}>
+            <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, color: c.w70, lineHeight: 1.7, margin: 0, marginBottom: 14 }}>
+              {analisi.consulenza}
+            </p>
+
+            {/* Macro estratti */}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+              {[
+                { l: 'KCAL', v: analisi.macro_stimati.kcal, u: '' },
+                { l: 'PROT', v: analisi.macro_stimati.proteine_g, u: 'g' },
+                { l: 'CARB', v: analisi.macro_stimati.carboidrati_g, u: 'g' },
+                { l: 'GRASSI', v: analisi.macro_stimati.grassi_g, u: 'g' },
+              ].map(m => (
+                <div key={m.l} style={{
+                  flex: 1, background: c.bg3, borderRadius: 10, padding: '8px 4px',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
+                  border: `1px solid ${c.bgLine}`,
+                }}>
+                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 15, fontWeight: 700, color: c.w }}>{m.v}<span style={{ fontSize: 9, color: c.w40 }}>{m.u}</span></span>
+                  <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 9, color: c.w40, letterSpacing: '0.06em' }}>{m.l}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Punti critici */}
+            {analisi.punti_critici.length > 0 && (
+              <div style={{ marginBottom: 10 }}>
+                {analisi.punti_critici.map((p, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
+                    <TrendingDown size={13} color="#fb923c" strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }} />
+                    <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w60, lineHeight: 1.5 }}>{p}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Punti positivi */}
+            {analisi.punti_positivi.length > 0 && (
+              <div>
+                {analisi.punti_positivi.map((p, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
+                    <TrendingUp size={13} color={c.limeInk} strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }} />
+                    <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w60, lineHeight: 1.5 }}>{p}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div style={{
+            background: c.bg3, border: `1px solid ${c.bgLine}`, borderTop: 'none',
+            borderRadius: '0 0 14px 14px', padding: '10px 14px',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            <Check size={12} color={c.limeInk} strokeWidth={2.5} />
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40 }}>
+              Questa analisi verrà integrata nel tuo piano personalizzato
+            </span>
+          </div>
+
+          {/* Reset */}
+          <motion.div whileTap={{ scale: 0.97 }} onClick={() => { onChange(null) }}
+            style={{ marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, cursor: 'pointer' }}>
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 13, color: c.w40 }}>Carica un'altra dieta</span>
+          </motion.div>
+        </motion.div>
+      )}
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  )
+}
+
+// ── STEP 9: Generazione piano ─────────────────────────────────────────────────
+const GENERATION_PHASES_BASE = [
   { label: 'Analizzo il tuo profilo completo...', duration: 4000 },
   { label: 'Calcolo il fabbisogno calorico (Mifflin-St Jeor)...', duration: 6000 },
   { label: 'Genero il piano alimentare settimanale...', duration: 25000 },
@@ -566,16 +757,22 @@ const GENERATION_PHASES = [
   { label: 'Verifico macros e bilanciamento nutrizionale...', duration: 18000 },
   { label: 'Ottimizzazione finale...', duration: 12000 },
 ]
+const GENERATION_PHASES_WITH_DIETA = [
+  { label: 'Integro l\'analisi della tua vecchia dieta...', duration: 5000 },
+  ...GENERATION_PHASES_BASE,
+]
 
 function StepGenerazione({
-  isGenerating, isDone, error, generatedData, onGenerate,
+  isGenerating, isDone, error, generatedData, onGenerate, hasDietaAnalisi,
 }: {
   isGenerating: boolean
   isDone: boolean
   error: string | null
   generatedData: { piano: GiornoPiano[]; macros_target: Record<string, number> } | null
   onGenerate: () => void
+  hasDietaAnalisi?: boolean
 }) {
+  const GENERATION_PHASES = hasDietaAnalisi ? GENERATION_PHASES_WITH_DIETA : GENERATION_PHASES_BASE
   const [phaseIdx, setPhaseIdx] = useState(0)
   const [progress, setProgress] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -784,6 +981,50 @@ export default function OnboardingScreen() {
   const [intolleranze, setIntolleranze] = useState<string[]>([])
   const [cibiNonGraditi, setCibiNonGraditi] = useState('')
   const [analisiFile, setAnalisiFile] = useState<File | null>(null)
+  const [dietaFile, setDietaFile] = useState<File | null>(null)
+  const [dietaAnalisi, setDietaAnalisi] = useState<DietAnalisi | null>(null)
+  const [isAnalyzingDieta, setIsAnalyzingDieta] = useState(false)
+  const [dietaAnalisiError, setDietaAnalisiError] = useState<string | null>(null)
+
+  const analyzeDieta = async () => {
+    if (!dietaFile || isAnalyzingDieta) return
+    setIsAnalyzingDieta(true)
+    setDietaAnalisiError(null)
+    try {
+      const reader = new FileReader()
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve((reader.result as string).split(',')[1])
+        reader.onerror = reject
+        reader.readAsDataURL(dietaFile)
+      })
+      const mediaType = dietaFile.type as 'image/jpeg' | 'image/png' | 'application/pdf'
+      const profile = {
+        obiettivo, sesso, eta: parseInt(eta) || null, peso_kg: parseFloat(peso) || null,
+        frequenza_allenamento: frequenza, luogo_allenamento: luogo,
+        livello_attivita: livello, obiettivo_workout: obiettivoWo,
+        preferenze_alimentari: preferenze, intolleranze,
+      }
+      const res = await fetch('https://api-7sydqvaalq-ew.a.run.app/analyze-diet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: base64, mediaType, profile }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Errore analisi dieta')
+      setDietaAnalisi(data.result)
+    } catch (e: unknown) {
+      setDietaAnalisiError(e instanceof Error ? e.message : 'Errore sconosciuto')
+    } finally {
+      setIsAnalyzingDieta(false)
+    }
+  }
+
+  // Reset analisi when file changes
+  const handleDietaFileChange = (f: File | null) => {
+    setDietaFile(f)
+    setDietaAnalisi(null)
+    setDietaAnalisiError(null)
+  }
 
   const canProceed = () => {
     if (step === 1) return obiettivo !== ''
@@ -792,8 +1033,9 @@ export default function OnboardingScreen() {
     if (step === 4) return luogo !== '' && livello !== '' && obiettivoWo !== ''
     if (step === 5) return preferenze.length > 0
     if (step === 6) return true // cibi non graditi is optional
-    if (step === 7) return true // analisi optional
-    if (step === 8) return isDone
+    if (step === 7) return true // analisi sangue optional
+    if (step === 8) return true // vecchia dieta optional
+    if (step === 9) return isDone
     return true
   }
 
@@ -836,12 +1078,17 @@ export default function OnboardingScreen() {
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), 100000)
 
+        // Build dieta_analisi context string if available
+        const dietaContext = dietaAnalisi
+          ? `Consulenza vecchia dieta: ${dietaAnalisi.consulenza}\nProblemi critici: ${dietaAnalisi.punti_critici.join('; ')}\nPunti positivi: ${dietaAnalisi.punti_positivi.join('; ')}\nMacro stimati vecchia dieta: kcal=${dietaAnalisi.macro_stimati.kcal}, prot=${dietaAnalisi.macro_stimati.proteine_g}g, carb=${dietaAnalisi.macro_stimati.carboidrati_g}g, grassi=${dietaAnalisi.macro_stimati.grassi_g}g`
+          : undefined
+
         let res: Response
         try {
           res = await fetch(fnUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ profile }),
+            body: JSON.stringify({ profile, dieta_analisi: dietaContext }),
             signal: controller.signal,
           })
         } finally {
@@ -887,7 +1134,7 @@ export default function OnboardingScreen() {
   const handleNext = async () => {
     if (!canProceed() || saving) return
 
-    if (step === 7) {
+    if (step === 8) {
       // Save onboarding profile to Supabase, then go to generation step
       if (user) {
         setSaving(true)
@@ -911,11 +1158,11 @@ export default function OnboardingScreen() {
         setUserFrequenza(frequenza)
         setSaving(false)
       }
-      setStep(8)
+      setStep(9)
       return
     }
 
-    if (step === 8 && isDone) {
+    if (step === 9 && isDone) {
       navigate('/home')
       return
     }
@@ -934,9 +1181,10 @@ export default function OnboardingScreen() {
   // CTA label
   const ctaLabel = (() => {
     if (saving) return 'Salvataggio...'
-    if (step === 7) return analisiFile ? 'Continua con analisi' : 'Salta — genera il piano'
-    if (step === 8 && !isGenerating && !isDone) return '🚀 Genera il mio piano'
-    if (step === 8 && isDone) return 'Inizia il percorso →'
+    if (step === 7) return analisiFile ? 'Continua con analisi' : 'Salta'
+    if (step === 8) return dietaAnalisi ? 'Genera piano con analisi →' : dietaFile ? 'Salta analisi' : 'Salta — genera il piano'
+    if (step === 9 && !isGenerating && !isDone) return '🚀 Genera il mio piano'
+    if (step === 9 && isDone) return 'Inizia il percorso →'
     return 'Continua'
   })()
 
@@ -1002,9 +1250,20 @@ export default function OnboardingScreen() {
               {step === 6 && <StepCibiNonGraditi value={cibiNonGraditi} onChange={setCibiNonGraditi} />}
               {step === 7 && <StepAnalisiSangue file={analisiFile} onChange={setAnalisiFile} />}
               {step === 8 && (
+                <StepVecchiaDieta
+                  file={dietaFile}
+                  onChange={handleDietaFileChange}
+                  analisi={dietaAnalisi}
+                  isAnalyzing={isAnalyzingDieta}
+                  onAnalyze={analyzeDieta}
+                  error={dietaAnalisiError}
+                />
+              )}
+              {step === 9 && (
                 <StepGenerazione
                   isGenerating={isGenerating} isDone={isDone} error={genError}
                   generatedData={generatedData} onGenerate={generatePlan}
+                  hasDietaAnalisi={!!dietaAnalisi}
                 />
               )}
             </motion.div>
@@ -1013,8 +1272,18 @@ export default function OnboardingScreen() {
 
         {/* CTA area */}
         <div style={{ padding: '0 24px 40px' }}>
-          {/* Skip link for step 7 (analisi sangue) */}
+          {/* Step 7: analisi sangue — skip prominent if no file */}
           {step === 7 && !analisiFile && (
+            <motion.div whileTap={{ scale: 0.98 }} onClick={handleNext}
+              style={{ height: 52, borderRadius: 52, background: c.lime, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 10 }}>
+              <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 16, fontWeight: 700, color: c.ink }}>
+                Salta — vai avanti
+              </span>
+            </motion.div>
+          )}
+
+          {/* Step 8: vecchia dieta — skip if no analysis done */}
+          {step === 8 && !dietaAnalisi && !dietaFile && (
             <motion.div whileTap={{ scale: 0.98 }} onClick={handleNext}
               style={{ height: 52, borderRadius: 52, background: c.lime, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 10 }}>
               <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 16, fontWeight: 700, color: c.ink }}>
@@ -1023,21 +1292,25 @@ export default function OnboardingScreen() {
             </motion.div>
           )}
 
-          {step !== 8 && !(step === 7 && !analisiFile) && (
-            <CTAButton label={ctaLabel} onClick={handleNext} disabled={!canProceed() || saving} />
-          )}
+          {/* Standard CTA — hidden on step 9 (generation) and on skip-eligible steps */}
+          {step !== 9
+            && !(step === 7 && !analisiFile)
+            && !(step === 8 && !dietaAnalisi && !dietaFile)
+            && (
+              <CTAButton label={ctaLabel} onClick={handleNext} disabled={!canProceed() || saving} />
+            )}
 
-          {step === 8 && !isGenerating && !isDone && (
+          {step === 9 && !isGenerating && !isDone && (
             <CTAButton label="🚀 Genera il mio piano" onClick={generatePlan} />
           )}
 
-          {step === 8 && isGenerating && (
+          {step === 9 && isGenerating && (
             <div style={{ height: 52, borderRadius: 52, background: c.bg4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 16, fontWeight: 700, color: c.w40 }}>Generazione in corso...</span>
             </div>
           )}
 
-          {step === 8 && isDone && (
+          {step === 9 && isDone && (
             <CTAButton label="Inizia il percorso →" onClick={() => navigate('/home')} />
           )}
         </div>
