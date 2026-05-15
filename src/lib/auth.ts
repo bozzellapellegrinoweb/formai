@@ -84,6 +84,14 @@ export async function saveOnboarding(userId: string, payload: {
   return { error }
 }
 
+export async function resetOnboarding(userId: string) {
+  const { error } = await supabase.from('profiles').update({
+    onboarding_done: false,
+    updated_at: new Date().toISOString(),
+  }).eq('id', userId)
+  return { error }
+}
+
 export async function savePianoAI(userId: string, piano: object[], macros_target: object) {
   const { error } = await supabase.from('profiles').update({
     piano_ai: piano,

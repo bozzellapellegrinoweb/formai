@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Flame, Sparkles, MessageSquare, Pencil } from '../components/ui/AppIcons'
-import { signOut, useAuth, getProfile } from '../lib/auth'
+import { signOut, useAuth, getProfile, resetOnboarding } from '../lib/auth'
 import { c, useTheme, THEMES, type ThemeName } from '../design/themes'
 
 const red = '#ff6b6b'
@@ -100,6 +100,7 @@ export default function ProfileScreen() {
   const [editMisure, setEditMisure] = useState(false)
   const [misureDraft, setMisureDraft] = useState<MisureData>(EMPTY_MISURE)
   const [showMisureHistory, setShowMisureHistory] = useState(false)
+  const [showRigeneraConfirm, setShowRigeneraConfirm] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -660,8 +661,24 @@ export default function ProfileScreen() {
           ))}
         </div>
 
-        {/* Logout + Admin */}
+        {/* Rigenera piano + Logout + Admin */}
         <div style={{ padding: '12px 20px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+
+          {/* Rigenera piano AI */}
+          <motion.div whileTap={{ scale: 0.97 }}
+            onClick={() => setShowRigeneraConfirm(true)}
+            style={{
+              height: 44, borderRadius: 44,
+              background: c.bg2, border: `1px solid ${c.bgLine}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', gap: 8,
+            }}>
+            <Sparkles size={15} color={c.limeInk} strokeWidth={2} />
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, fontWeight: 600, color: c.w60 }}>
+              Rigenera piano AI
+            </span>
+          </motion.div>
+
           {user?.email === 'bozzellapellegrino@gmail.com' && (
             <motion.div whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/admin')}
@@ -689,6 +706,73 @@ export default function ProfileScreen() {
             </span>
           </motion.div>
         </div>
+
+        {/* Rigenera piano confirm overlay */}
+        <AnimatePresence>
+          {showRigeneraConfirm && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              style={{
+                position: 'fixed', inset: 0, zIndex: 500,
+                background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
+                display: 'flex', alignItems: 'flex-end', padding: '0 0 env(safe-area-inset-bottom)',
+              }}
+              onClick={() => setShowRigeneraConfirm(false)}
+            >
+              <motion.div
+                initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                onClick={e => e.stopPropagation()}
+                style={{
+                  width: '100%', background: c.bg2,
+                  borderRadius: '20px 20px 0 0',
+                  border: `1px solid ${c.bgLine}`,
+                  padding: '24px 24px 32px',
+                }}
+              >
+                <div style={{ width: 36, height: 4, borderRadius: 2, background: c.w20, margin: '0 auto 24px' }} />
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 18, fontWeight: 800, color: c.w, marginBottom: 8 }}>
+                  Rigenera il piano AI
+                </div>
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40, lineHeight: 1.7, marginBottom: 24 }}>
+                  Vuoi aggiornare i tuoi obiettivi e rigenerare un piano personalizzato? Ripartirai dall'onboarding con i tuoi dati già pre-compilati.
+                </div>
+                <div style={{ background: c.bg3, borderRadius: 12, padding: '12px 14px', border: `1px solid ${c.bgLine}`, marginBottom: 20 }}>
+                  <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40, lineHeight: 1.6 }}>
+                    ✦ I tuoi dati fisici (peso, altezza, età) verranno mantenuti<br/>
+                    ✦ Il piano alimentare e di allenamento verrà rigenerato<br/>
+                    ✦ I pasti già loggati non verranno cancellati
+                  </div>
+                </div>
+                <motion.div whileTap={{ scale: 0.97 }}
+                  onClick={async () => {
+                    if (!user) return
+                    setShowRigeneraConfirm(false)
+                    await resetOnboarding(user.id)
+                    navigate('/onboarding')
+                  }}
+                  style={{
+                    height: 52, borderRadius: 52, background: c.lime,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    gap: 8, cursor: 'pointer', marginBottom: 10,
+                  }}>
+                  <Sparkles size={16} color={c.ink} strokeWidth={2} />
+                  <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 15, fontWeight: 700, color: c.ink }}>
+                    Aggiorna obiettivi →
+                  </span>
+                </motion.div>
+                <motion.div whileTap={{ scale: 0.97 }} onClick={() => setShowRigeneraConfirm(false)}
+                  style={{
+                    height: 44, borderRadius: 44,
+                    background: 'transparent',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                  }}>
+                  <span style={{ fontFamily: "'Poppins', sans-serif", fontSize: 14, color: c.w40 }}>Annulla</span>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div style={{ flex: 1 }}/>
       </div>
