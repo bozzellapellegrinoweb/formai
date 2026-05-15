@@ -123,8 +123,19 @@ function getInitialState(): AppState {
   // Use AI-generated plan if available
   const aiPlan = getAIPlan()
   if (aiPlan && aiPlan.length === 7) {
+    // Always recalculate dates from the real clock — the saved plan may have stale week dates
+    const now = new Date()
+    const dow = now.getDay() // 0=Dom … 6=Sab
+    const sunday = new Date(now)
+    sunday.setDate(now.getDate() - dow)
+    const aiPlanFresh = aiPlan.map((g, i) => {
+      const d = new Date(sunday)
+      d.setDate(sunday.getDate() + i)
+      return { ...g, data: d.getDate() }
+    })
+
     // Derive todayMacros from today's AI plan day (keeps Diario in sync with Piano/Home)
-    const today = aiPlan[todayIndex]
+    const today = aiPlanFresh[todayIndex]
     const aiTodayMacros = today ? {
       ...mockTodayMacros,
       kcal_target: today.kcal_totali || mockTodayMacros.kcal_target,
@@ -132,7 +143,7 @@ function getInitialState(): AppState {
       carboidrati: today.macro?.carboidrati ?? mockTodayMacros.carboidrati,
       grassi: today.macro?.grassi ?? mockTodayMacros.grassi,
     } : mockTodayMacros
-    return { piano: aiPlan, todayWorkout: mockTodayWorkout, todayMacros: aiTodayMacros, todayIndex }
+    return { piano: aiPlanFresh, todayWorkout: mockTodayWorkout, todayMacros: aiTodayMacros, todayIndex }
   }
 
   const basePiano = buildPianoWithCurrentDates()

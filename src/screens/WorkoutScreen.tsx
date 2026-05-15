@@ -853,7 +853,7 @@ function ActiveSession({
       </div>
 
       {/* Bottom CTA */}
-      <div style={{ padding: '0 20px 32px', flexShrink: 0 }}>
+      <div style={{ padding: '0 20px calc(env(safe-area-inset-bottom) + 16px)', flexShrink: 0 }}>
         {nextEx && (
           <div style={{
             fontFamily: "'Poppins', sans-serif", fontSize: 12, color: c.w40,
@@ -948,6 +948,7 @@ export default function WorkoutScreen() {
     <div style={{
       background: c.bg,
       position: 'fixed', top: 'env(safe-area-inset-top)', left: 0, right: 0, bottom: 0,
+      zIndex: 100,
       display: 'flex', flexDirection: 'column',
     }}>
 
@@ -985,7 +986,7 @@ export default function WorkoutScreen() {
         )}
       </div>
 
-      <div style={{ flex: 1, overflowY: 'scroll', minHeight: 0, WebkitOverflowScrolling: 'touch', paddingBottom: 'var(--nav-h)' }}>
+      <div style={{ flex: 1, overflowY: 'scroll', minHeight: 0, WebkitOverflowScrolling: 'touch', paddingBottom: 8 }}>
 
         {/* Weekly schedule strip — from real plan */}
         <div style={{ padding: '0 18px 12px' }}>
@@ -1175,7 +1176,7 @@ export default function WorkoutScreen() {
 
       {/* Bottom CTA — hidden on rest days */}
       {!sessionDone && session.esercizi.length > 0 && (
-        <div style={{ padding: '8px 18px var(--nav-h)', flexShrink: 0 }}>
+        <div style={{ padding: '8px 18px calc(env(safe-area-inset-bottom) + 8px)', flexShrink: 0 }}>
           {!sessionStarted ? (
             <motion.div whileTap={{ scale: 0.97 }} onClick={handleStart}
               style={{
