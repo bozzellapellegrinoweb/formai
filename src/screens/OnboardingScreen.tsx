@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Target, Ruler, Dumbbell, Utensils, Check, Flame, HeartPulse, Leaf, Wheat, Milk, Activity, Home as HomeIcon, FlaskConical, Upload, AlertCircle, XCircle, Sparkles, TrendingUp, TrendingDown } from 'lucide-react'
-import { useAuth, saveOnboarding, savePianoAI } from '../lib/auth'
+import { useAuth, saveOnboarding, savePianoAI, getProfile } from '../lib/auth'
 import { setUserFrequenza, saveAIPlan } from '../lib/appStore'
 import type { GiornoPiano } from '../lib/mock/plan'
 import { c } from '../design/themes'
@@ -981,10 +981,37 @@ export default function OnboardingScreen() {
   const [intolleranze, setIntolleranze] = useState<string[]>([])
   const [cibiNonGraditi, setCibiNonGraditi] = useState('')
   const [analisiFile, setAnalisiFile] = useState<File | null>(null)
+  const [profileLoaded, setProfileLoaded] = useState(false)
   const [dietaFile, setDietaFile] = useState<File | null>(null)
   const [dietaAnalisi, setDietaAnalisi] = useState<DietAnalisi | null>(null)
   const [isAnalyzingDieta, setIsAnalyzingDieta] = useState(false)
   const [dietaAnalisiError, setDietaAnalisiError] = useState<string | null>(null)
+
+  // Pre-fill form from existing Supabase profile (rigenera flow)
+  useEffect(() => {
+    if (!user || profileLoaded) return
+    getProfile(user.id).then(p => {
+      if (!p) return
+      setProfileLoaded(true)
+      if (p.obiettivo) setObiettivo(p.obiettivo)
+      if (p.sesso) setSesso(p.sesso)
+      if (p.peso_kg) setPeso(String(p.peso_kg))
+      if (p.altezza_cm) setAltezza(String(p.altezza_cm))
+      if (p.eta) setEta(String(p.eta))
+      if (p.peso_target_kg) setPesoTarget(String(p.peso_target_kg))
+      // attivitaExtra (sedentario/leggero/moderato/attivo) non è salvata nel DB — l'utente la riselezionerà
+      if (p.pasti_al_giorno) setPastiGiorno(p.pasti_al_giorno)
+      if (p.ore_sonno) setOreSonno(p.ore_sonno)
+      if (p.livello_stress) setLivelloStress(p.livello_stress)
+      if (p.luogo_allenamento) setLuogo(p.luogo_allenamento)
+      if (p.livello_attivita) setLivello(p.livello_attivita) // training level: principiante/intermedio/avanzato
+      if (p.frequenza_allenamento) setFrequenza(p.frequenza_allenamento)
+      if (p.obiettivo_workout) setObiettivoWo(p.obiettivo_workout)
+      if (p.preferenze_alimentari?.length) setPreferenze(p.preferenze_alimentari)
+      if (p.intolleranze?.length) setIntolleranze(p.intolleranze)
+      if (p.cibi_non_graditi) setCibiNonGraditi(p.cibi_non_graditi)
+    })
+  }, [user, profileLoaded])
 
   const analyzeDieta = async () => {
     if (!dietaFile || isAnalyzingDieta) return
