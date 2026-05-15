@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Zap } from 'lucide-react'
 import { type GiornoPiano, type Pasto, type EsercizioScheda } from '../lib/mock/plan'
 import { useAppState, updateMeal } from '../lib/appStore'
 import { MealIcon } from '../components/ui/AppIcons'
@@ -223,6 +225,7 @@ function MealRow({ pasto, expanded, onToggle, isToday }: {
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 export default function PlanScreen() {
+  const navigate = useNavigate()
   const { piano, todayIndex } = useAppState()
   const [selectedDay, setSelectedDay] = useState(todayIndex)
   const [expandedMeal, setExpandedMeal] = useState<string | null>(null)
@@ -364,6 +367,33 @@ export default function PlanScreen() {
                 {giorno.esercizi.map((ex, idx) => (
                   <EsercizioRow key={`${ex.nome}-${idx}`} ex={ex} idx={idx} />
                 ))}
+              </div>
+
+              {/* CTA */}
+              <div style={{ padding: '10px 14px 14px' }}>
+                {isToday ? (
+                  <motion.div whileTap={{ scale: 0.97 }} onClick={() => navigate('/workout')}
+                    style={{
+                      height: 48, borderRadius: 48, background: c.lime,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      gap: 8, cursor: 'pointer',
+                    }}>
+                    <Zap size={16} fill={c.ink} color={c.ink} strokeWidth={2} />
+                    <span style={{ ...sans, fontSize: 14, fontWeight: 700, color: c.ink }}>
+                      Inizia sessione
+                    </span>
+                  </motion.div>
+                ) : (
+                  <div style={{
+                    height: 40, borderRadius: 40,
+                    background: c.bg3, border: `1px solid ${c.bgLine}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  }}>
+                    <span style={{ ...sans, fontSize: 12, color: c.w40 }}>
+                      Disponibile {giorno.giorno.toLowerCase()}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
