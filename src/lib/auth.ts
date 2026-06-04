@@ -7,16 +7,43 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null)
+    let mounted = true
+
+    // Rete di sicurezza: non lasciare MAI la schermata di caricamento appesa.
+    // Se getSession() si blocca (es. lock dell'auth in stallo su PWA/mobile),
+    // dopo il timeout proseguiamo come "non autenticato" → redirect al login.
+    const safety = setTimeout(() => {
+      if (mounted) setLoading(false)
+    }, 5000)
+
+    supabase.auth.getSession()
+      .then(({ data }) => {
+        if (!mounted) return
+        setUser(data.session?.user ?? null)
+      })
+      .catch(() => {
+        // Errore nel recupero sessione: degradiamo a stato non autenticato.
+      })
+      .finally(() => {
+        if (!mounted) return
+        clearTimeout(safety)
+        setLoading(false)
+      })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return
+      setUser(session?.user ?? null)
+      // onAuthStateChange emette INITIAL_SESSION all'avvio: sblocchiamo il
+      // caricamento anche da qui, così il loader non dipende solo da getSession.
+      clearTimeout(safety)
       setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      clearTimeout(safety)
+      subscription.unsubscribe()
+    }
   }, [])
 
   return { user, loading }
